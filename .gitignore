@@ -1,2 +1,4 @@
 Avador/Assets/Utils/EditorUtils/FocusedBrowser/FocusedBrowserData.asset
 Avador/Assets/Utils/EditorUtils/FocusedBrowser/FocusedBrowserData.asset.meta
+Avador/.idea/*
+Avador/.vscode/*
