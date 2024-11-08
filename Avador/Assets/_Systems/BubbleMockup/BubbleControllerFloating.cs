@@ -26,7 +26,7 @@ public class BubbleControllerFloating : MonoBehaviour
     {
         if(_disableSpawning) return;
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.End))
         {
             SelectBubble();
         }
@@ -49,7 +49,7 @@ public class BubbleControllerFloating : MonoBehaviour
         }
     }
 
-    private void SelectBubble()
+    public void SelectBubble()
     {
         Debug.Log("Selecting bubble");
         int selectedBubble = Random.Range(0, _bubbles.Count);
@@ -77,7 +77,6 @@ public class BubbleControllerFloating : MonoBehaviour
         
         while (time < 1)
         {
-            Debug.Log($"[BubbleControllerFloating.MoveAvatar] {time}");
             time += Time.deltaTime;
             _mockupPictureTwo.transform.position =
                 Vector3.Lerp(startingPos, _mockupPictureOne.transform.position, time);
