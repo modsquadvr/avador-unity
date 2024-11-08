@@ -22,7 +22,7 @@ public class AnimationRunner : MonoBehaviour
 		}
 	}
 
-	private void SetTalking(bool value)
+	public void SetTalking(bool value)
 	{
 		_talking = value;
 		DecideAnimation();

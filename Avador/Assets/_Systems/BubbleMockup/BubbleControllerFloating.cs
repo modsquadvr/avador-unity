@@ -13,6 +13,7 @@ public class BubbleControllerFloating : MonoBehaviour
     [SerializeField] private CanvasGroup _showcaseInfo;
     [SerializeField] private GameObject _mockupPictureOne;
     [SerializeField] private GameObject _mockupPictureTwo;
+    [SerializeField] private AnimationRunner _animationRunner;
 
     private int _burstCount;
 
@@ -63,6 +64,7 @@ public class BubbleControllerFloating : MonoBehaviour
         }
 
         _disableSpawning = true;
+        _animationRunner.SetTalking(true);
 
         StartCoroutine(MoveAvatar());
     }
@@ -71,6 +73,7 @@ public class BubbleControllerFloating : MonoBehaviour
     {
         float time = 0;
         Vector3 startingPos = _mockupPictureTwo.transform.position;
+        Quaternion startingRos = _mockupPictureTwo.transform.rotation;
         
         while (time < 1)
         {
@@ -78,11 +81,12 @@ public class BubbleControllerFloating : MonoBehaviour
             time += Time.deltaTime;
             _mockupPictureTwo.transform.position =
                 Vector3.Lerp(startingPos, _mockupPictureOne.transform.position, time);
+            _mockupPictureTwo.transform.rotation = Quaternion.Lerp(startingRos, _mockupPictureOne.transform.rotation, time);
             yield return null;
         }
         
-        _mockupPictureTwo.SetActive(false);
-        _mockupPictureOne.SetActive(true);
+        // _mockupPictureTwo.SetActive(false);
+        // _mockupPictureOne.SetActive(true);
     }
 
     private void TransitionToShowcase(Bubble bubble)
