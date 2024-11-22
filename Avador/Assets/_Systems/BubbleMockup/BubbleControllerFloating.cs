@@ -20,17 +20,8 @@ public class BubbleControllerFloating : MonoBehaviour
     private List<Bubble> _bubbles = new ();
     private float _timer = 0;
 
-    private bool _disableSpawning;
-    
-    private void Update()
-    {
-        if(_disableSpawning) return;
-
-        if (Input.GetKeyDown(KeyCode.End))
-        {
-            SelectBubble();
-        }
-        
+    public void UpdateBubbles()
+    { 
         _timer += Time.deltaTime;
         if (_burstCount > _burstAmount)
         {
@@ -62,8 +53,7 @@ public class BubbleControllerFloating : MonoBehaviour
             }
             else _bubbles[i].OnOtherSelected();
         }
-
-        _disableSpawning = true;
+        
         _animationRunner.SetTalking(true);
 
         StartCoroutine(MoveAvatar());

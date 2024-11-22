@@ -2,7 +2,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using Newtonsoft.Json;
 using TMPro;
 
 public class ChatGPTClient : MonoBehaviour
@@ -13,7 +12,7 @@ public class ChatGPTClient : MonoBehaviour
 
     public TMP_Text _textOutput;
     public TMP_InputField InputField;
-    public BubbleControllerFloating _BubbleControllerFloating;
+    public StateController StateController;
 
 #if UNITY_EDITOR
     private const string debugColor = "#1cc950";
@@ -39,7 +38,7 @@ public class ChatGPTClient : MonoBehaviour
     {
         _SendMessageToChatGpt(InputField.text);
         InputField.text = "";
-        _BubbleControllerFloating.SelectBubble();
+        StateController.TransitionTo(AvadorStates.FOCUS);
     }
 
 private async void _SendMessageToChatGpt(string prompt)
