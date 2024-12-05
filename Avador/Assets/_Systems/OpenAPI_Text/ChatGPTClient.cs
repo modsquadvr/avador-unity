@@ -2,13 +2,17 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using Newtonsoft.Json;
-
+using TMPro;
 
 public class ChatGPTClient : MonoBehaviour
 {
     private TcpClient client;
     private NetworkStream stream;
+
+
+    public TMP_Text _textOutput;
+    public TMP_InputField InputField;
+    // public StateController StateController;
 
 #if UNITY_EDITOR
     private const string debugColor = "#1cc950";
@@ -28,13 +32,24 @@ public class ChatGPTClient : MonoBehaviour
             print($"[CLIENT] <color={debugColor}> Server is NOT ready </color>");
 #endif
         }
+    }
+
+    public void SendMessageToChatGpt()
+    {
+        _SendMessageToChatGpt(InputField.text);
+        InputField.text = "";
+        // StateController.TransitionTo(AvadorStates.FOCUS);
+    }
+
+    private async void _SendMessageToChatGpt(string prompt)
+    {
 
         try
         {
             client = new TcpClient("127.0.0.1", ChatGPTServer.port);
             stream = client.GetStream();
 
-            string messageToSend = "Hello ChatGPT";
+            string messageToSend = prompt;
             byte[] messageBytes = Encoding.UTF8.GetBytes(messageToSend);
             await stream.WriteAsync(messageBytes, 0, messageBytes.Length);
 
@@ -46,6 +61,7 @@ public class ChatGPTClient : MonoBehaviour
 #if UNITY_EDITOR
             print($"[CLIENT] <color={debugColor}> Received response from server: </color>" + response);
 #endif
+            _textOutput.text = response;
         }
         catch (System.Exception ex)
         {
