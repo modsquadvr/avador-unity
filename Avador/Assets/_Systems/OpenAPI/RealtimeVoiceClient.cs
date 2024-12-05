@@ -5,27 +5,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
+
 public class RealtimeVoiceClient : MonoBehaviour
 {
 
     private string openAIWebSocketUri = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01";
-    AudioStreamer audioStreamer;
     async void Start()
     {
-        audioStreamer = new();
         await ConnectAsync(openAIWebSocketUri);
 
-        audioStreamer.AudioDataAvailable += async (audioData) =>
-        {
-            await SendAudioData(audioData);
-        };
+        // MicrophoneStreamer.Instance.OnAudioProvided += async (audioData) =>
+        // {
+        //     await SendAudioData(audioData);
+        // };
 
-        audioStreamer.StartCapture();
+
     }
 
     async void OnDestroy()
     {
-        audioStreamer.StopCapture();
         await DisconnectAsync();
     }
 
@@ -44,11 +42,14 @@ public class RealtimeVoiceClient : MonoBehaviour
         _ = ReceiveResponses();
     }
 
-    public async Task SendAudioData(byte[] buffer)
+
+    public async Task SendAudioData(float[] buffer)
     {
+
         if (webSocket.State == WebSocketState.Open)
         {
-            await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Binary, true, CancellationToken.None);
+            await Task.Delay(100);
+            // await webSocket.SendAsync(new ArraySegment<float>(buffer), WebSocketMessageType.Binary, true, CancellationToken.None);
         }
     }
 
@@ -74,5 +75,6 @@ public class RealtimeVoiceClient : MonoBehaviour
     {
         await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnecting", CancellationToken.None);
     }
+
 
 }

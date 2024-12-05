@@ -26,6 +26,7 @@ public class ChatGPTServer : MonoBehaviour
 
     void OnDestroy()
     {
+        listener.Stop();
         isReady = false;
     }
 

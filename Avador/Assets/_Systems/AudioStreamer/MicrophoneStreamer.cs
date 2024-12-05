@@ -2,22 +2,47 @@ using UnityEngine;
 using NAudio.Dsp;
 using System;
 
-public class MicrophoneStreamer : MonoBehaviour
+public partial class MicrophoneStreamer : MonoBehaviour
 {
+    [SerializeField] private AudioSettings settings;
+
+    public int sampleRate => settings.sampleRate;
+    public int bufferSize => settings.bufferSize;
+    private float energyThreshold => AudioSettings.energyThreshold;
     private AudioSource audioSource;
     private string microphoneName;
-    private int sampleRate = 44100; // Adjust based on your requirements
-
-    public const float energyThreshold = 0.6f;
-    private int bufferSize = 1024;  // Size of the audio buffer
-
-    private float[] sharedBuffer;
+    public float[] sharedBuffer;
     private readonly object lockObject = new object();
+    private MicrophoneStateMachine stateMachine;
+    public Action OnStartedSpeaking;
+    public Action OnStoppedSpeaking;
+    public Action<float[]> OnAudioProvided;
+    private bool isVoiceActive;
+
+    //singleton
+    public static MicrophoneStreamer Instance;
+
+    private AudioPlayer player;
+    void Awake()
+    {
+        if (Instance != null)
+        {
+            throw new Exception("There can only be one MicrophoneStreamer");
+        }
+    }
+    // private AsyncAudioProcessor processor;
 
     void Start()
     {
-        audioSource = gameObject.AddComponent<AudioSource>();
 
+        Instance = this;
+        stateMachine = new();
+        stateMachine.AddState(MicrophoneState.SILENT, new Silent(this));
+        stateMachine.AddState(MicrophoneState.SPEAKING, new Speaking(this));
+        stateMachine.Init(MicrophoneState.SILENT);
+
+        audioSource = gameObject.AddComponent<AudioSource>();
+        // processor = GetComponent<AsyncAudioProcessor>();
         // Select the first microphone available
         if (Microphone.devices.Length > 0)
         {
@@ -30,6 +55,8 @@ public class MicrophoneStreamer : MonoBehaviour
         {
             Debug.LogError("No microphone detected!");
         }
+
+        player = new();
     }
 
     private void StartMicrophone()
@@ -39,11 +66,11 @@ public class MicrophoneStreamer : MonoBehaviour
             Microphone.End(microphoneName);
         }
 
-        // Start capturing microphone input
+        // // Start capturing microphone input
         audioSource.clip = Microphone.Start(microphoneName, true, 1, sampleRate); // Looping, 1-second buffer
         audioSource.loop = true;
 
-        // Wait until the microphone starts recording
+        // // Wait until the microphone starts recording
         while (!(Microphone.GetPosition(microphoneName) > 0)) { }
 
         audioSource.Play(); // Start playback to process the microphone audio
@@ -59,24 +86,21 @@ public class MicrophoneStreamer : MonoBehaviour
             if (sharedBuffer == null || sharedBuffer.Length != data.Length)
                 sharedBuffer = new float[data.Length];
 
-            System.Array.Copy(data, sharedBuffer, data.Length);
+            Array.Copy(data, sharedBuffer, data.Length);
         }
 
         // Process the shared buffer using NAudio (pseudo-code)
+        // processor.ProcessAudioAsync(data);
         ProcessWithNAudio(sharedBuffer);
+        stateMachine.Update();
 
         lock (lockObject)
         {
             // Copy back processed data
-            System.Array.Copy(sharedBuffer, data, sharedBuffer.Length);
+            Array.Copy(sharedBuffer, data, sharedBuffer.Length);
         }
     }
 
-    enum State
-    {
-        SILENT,
-        SPEAKING
-    }
 
     private void ProcessWithNAudio(float[] buffer)
     {
@@ -92,9 +116,10 @@ public class MicrophoneStreamer : MonoBehaviour
         float speechEnergy = AudioProcessHelpers.ComputeSpeechBandEnergy(fftBuffer, fftLength, sampleRate);
 
         // Step 4: Compare with threshold
-        bool brokeAudioThreshold = speechEnergy > energyThreshold;
-
+        isVoiceActive = speechEnergy > energyThreshold;
     }
+
+
 
     private void OnDestroy()
     {
@@ -103,5 +128,7 @@ public class MicrophoneStreamer : MonoBehaviour
             Microphone.End(microphoneName);
             Debug.Log("Microphone stopped.");
         }
+        Instance = null;
+        player.Dispose();
     }
 }
