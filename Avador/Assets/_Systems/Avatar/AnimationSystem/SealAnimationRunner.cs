@@ -36,46 +36,20 @@ public class SealAnimationRunner : MonoBehaviour
 		}
 	}
 
-	// private bool _talking;
-	//
-	// private void Start()
-	// {
-	// 	_animationPlayer.PlayAnimation(_playableAnimations[0]);
-	// }
-	//
-	// private void Update()
-	// {
-	// 	if (Input.GetKeyDown(KeyCode.Alpha1))
-	// 	{
-	// 		SetTalking(!_talking);
-	// 	}
-	// }
-	//
-	// private void SetTalking(bool value)
-	// {
-	// 	_talking = value;
-	// 	DecideAnimation();
-	// }
-	//
-	// private void DecideAnimation()
-	// {
-	// 	if (_talking)
-	// 	{
-	// 		LoopPlayTalkingAnimations();
-	// 	}
-	// 	else
-	// 	{
-	// 		PlayIdleAnimation();
-	// 	}
-	// }
-	// private void PlayIdleAnimation()
-	// {
-	// 	_animationPlayer.PlayAnimation(_playableAnimations[2]);
-	// }
-	//
-	// private void LoopPlayTalkingAnimations()
-	// {
-	// 	_animationPlayer.PlayAnimation(_playableAnimations[1]);
-	//
-	// }
+	public void PlayDormant()
+	{
+		_animationPlayer.PlayAnimation(_playableAnimations[0]);
+	}
+	public void PlaySwimUp()
+	{
+		_animationPlayer.PlayAnimation(_playableAnimations[1]);
+	}
+	public void PlayTalkingIdle()
+	{
+		_animationPlayer.PlayAnimation(_playableAnimations[2]);
+	}
+	public void PlaySwimDown()
+	{
+		_animationPlayer.PlayAnimation(_playableAnimations[3]);
+	}
 }
