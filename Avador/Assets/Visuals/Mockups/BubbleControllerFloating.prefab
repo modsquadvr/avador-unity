@@ -47,6 +47,8 @@ MonoBehaviour:
   _bubblePrefab: {fileID: 4867593986402584376, guid: cdb6f5cefd1887d44ab6d97346fde904, type: 3}
   _speed: 1.07
   _spawnRate: 1.54
-  _spawnRange: 2.24
+  _spawnRange: 2.1
   _burstAmount: 5
   _burstDelay: 3
+  _showcaseInfo: {fileID: 0}
+  _contentProvider: {fileID: 0}
