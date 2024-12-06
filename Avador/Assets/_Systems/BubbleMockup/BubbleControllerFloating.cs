@@ -112,8 +112,8 @@ public class BubbleControllerFloating : MonoBehaviour
         _museumObjectIdsCurrentlyInBubbles.Add(museumObjectSO.Id);
         _bubbles.Add(bubble);
         
-        bubble.Initialize(_speed, museumObjectSO.MainImage, museumObjectSO.Id);
         bubble.transform.position = new Vector3(Random.Range(-_spawnRange,_spawnRange), transform.position.y, 0);
+        bubble.Initialize(_speed, museumObjectSO.MainImage, museumObjectSO.Id);
         bubble.OnBubbleShouldBeDestroyed += RemoveBubble;
     }
     
@@ -126,8 +126,8 @@ public class BubbleControllerFloating : MonoBehaviour
         _museumObjectIdsCurrentlyInBubbles.Add(museumObjectSO.Id);
         _bubbles.Add(bubble);
         
+        bubble.transform.localPosition = new Vector3(Random.Range(-_spawnRange,_spawnRange), transform.position.y, 0);
         bubble.Initialize(_speed, museumObjectSO.MainImage, museumObjectSO.Id, true);
-        bubble.transform.position = new Vector3(Random.Range(-_spawnRange,_spawnRange), transform.position.y, 0);
         bubble.OnBubbleShouldBeDestroyed += RemoveBubble;
     }
 

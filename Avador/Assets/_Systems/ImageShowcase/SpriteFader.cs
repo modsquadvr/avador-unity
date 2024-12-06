@@ -77,13 +77,14 @@ public class SpriteFader : MonoBehaviour
 
     private IEnumerator FadeOut()
     {
-        float timer = 0f;
         Color color = SpriteRenderer.color;
+        float beginningAlpha = color.a;
+        float timer = 1 - beginningAlpha;
 
         while (timer < FadeDuration)
         {
             timer += Time.deltaTime;
-            color.a = Mathf.Lerp(1f, 0f, timer / FadeDuration);
+            color.a = Mathf.Lerp(beginningAlpha, 0f, timer / FadeDuration);
             SpriteRenderer.color = color;
             yield return null;
         }

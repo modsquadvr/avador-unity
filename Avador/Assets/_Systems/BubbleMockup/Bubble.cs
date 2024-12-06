@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 /// <summary>
@@ -22,6 +21,8 @@ public class Bubble : MonoBehaviour
 		_initialScale = transform.localScale;
 		_startTime = Time.time;
 		_bubblePlayedSpawnAnimation = false;
+
+		_bubbleRadius = GetComponent<Collider2D>().bounds.size.x/2;
 		
 		if(start_at_full_size) return;
 		transform.localPosition = Vector3.zero;
@@ -48,6 +49,7 @@ public class Bubble : MonoBehaviour
 	public float Speed = 1.0f; // Controls the vertical floating speed
 	public float NoiseScale = 4f; // Controls the scale of the Perlin noise
 	public float NoiseIntensity = 1f; // Controls the strength of noise movement
+	public float CollisionForceWithOtherBubbles = 2f;
 
 	private Vector3 _initialPosition;
 	private Vector3 _initialScale;
@@ -55,6 +57,7 @@ public class Bubble : MonoBehaviour
 	private float _randomOffset;
 	private float _startTime;
 	private bool _bubblePlayedSpawnAnimation = false;
+	private float _bubbleRadius;
 	
 	void Update()
 	{
@@ -62,13 +65,14 @@ public class Bubble : MonoBehaviour
 		if (!_bubblePlayedSpawnAnimation)
 			SpawnBubbleAnimation();
 		MoveBubble();
-		if (Camera.main.WorldToScreenPoint(transform.position).y > Screen.height + 100)
+		if (Camera.main.WorldToScreenPoint(transform.position).y > Screen.height + 250)
 		{
 			OnBubbleShouldBeDestroyed?.Invoke(this);
 		}
 	}
 
 	private float _timeInSpawnAnimation = 0;
+
 	private void SpawnBubbleAnimation()
 	{
 		_timeInSpawnAnimation += Time.deltaTime /2f;
@@ -136,6 +140,17 @@ public class Bubble : MonoBehaviour
 		}
 		//Destroy when off screen
 		OnBubbleShouldBeDestroyed?.Invoke(this);
+	}
+
+	private void OnCollisionStay2D(Collision2D other)
+	{
+		if (_state != State.FLOAT) return;
+		//Move away from other bubble
+		Vector3 direction = new Vector2(transform.position.x, transform.position.y) - other.contacts[0].point;
+		direction.y *= 0.2f; // favour horizontal movement
+		direction.Normalize();
+		float distance = Vector3.Distance(new Vector2(transform.position.x, transform.position.y), other.contacts[0].point);
+		_initialPosition += direction * CollisionForceWithOtherBubbles * Time.deltaTime * (_bubbleRadius - distance);
 	}
 
 	public void Pop()
