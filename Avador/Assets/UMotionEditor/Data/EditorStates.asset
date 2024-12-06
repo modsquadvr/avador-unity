@@ -16,5 +16,6 @@ MonoBehaviour:
     LoadedProjectGUID:
       valueInternal: 
     RecentlyOpenedProjectPath:
-      valueInternal: 
-    RecentlyOpenedProjectGUIDsList: []
+      valueInternal: Assets\Art\Animations\UMotionProjects
+    RecentlyOpenedProjectGUIDsList:
+    - valueInternal: 66d40d85e5f8876418f29a5deb23cba7
