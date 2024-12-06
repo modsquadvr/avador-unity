@@ -939,6 +939,10 @@ PrefabInstance:
       propertyPath: _sealAnimationRunner
       value: 
       objectReference: {fileID: 985345791}
+    - target: {fileID: 7550798033287832296, guid: 5160634220ec4264f9f23ec44f498656, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.86
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
