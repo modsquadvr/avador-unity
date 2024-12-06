@@ -12,7 +12,7 @@ public class ChatGPTClient : MonoBehaviour
 
     public TMP_Text _textOutput;
     public TMP_InputField InputField;
-    public StateController StateController;
+    // public StateController StateController;
 
 #if UNITY_EDITOR
     private const string debugColor = "#1cc950";
@@ -38,10 +38,10 @@ public class ChatGPTClient : MonoBehaviour
     {
         _SendMessageToChatGpt(InputField.text);
         InputField.text = "";
-        StateController.TransitionTo(AvadorStates.FOCUS);
+        // StateController.TransitionTo(AvadorStates.FOCUS);
     }
 
-private async void _SendMessageToChatGpt(string prompt)
+    private async void _SendMessageToChatGpt(string prompt)
     {
 
         try

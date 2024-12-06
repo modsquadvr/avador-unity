@@ -36,6 +36,7 @@ public class ChatGPTServer : MonoBehaviour
         listener = new TcpListener(IPAddress.Loopback, port);
         listener.Start();
         isReady = true;
+
 #if UNITY_EDITOR
         print($"[SERVER] <color={debugColor}>TCP Server started on port {port}...</color>");
 #endif
@@ -65,8 +66,11 @@ public class ChatGPTServer : MonoBehaviour
         client.Close();
     }
 
-    private static async Task<string> GetChatGPTResponseAsync(string prompt)
+    private static async Task<string> GetChatGPTResponseAsync(string prompt, bool isDebug = true)
     {
+        if (isDebug)
+            return "(debug) Hello! How can I assist you today?";
+
         using (HttpClient client = new HttpClient() { Timeout = TimeSpan.FromSeconds(10) })
         {
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Secret.API_KEY}");
