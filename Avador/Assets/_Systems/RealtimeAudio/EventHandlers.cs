@@ -13,15 +13,19 @@ public partial class RealtimeClient
             { "error", HandleErrorEvent },
             { "session.created", HandleSessionCreatedEvent },
             { "session.updated", HandleSessionUpdatedEvent },
-            { "response.content_part.added", HandleResponseContentPartAdded }
+            { "response.content_part.added", HandleResponseContentPartAdded },
+            { "input_audio_buffer.speech_started", HandleInputAudioBufferSpeechStarted},
+            { "input_audio_buffer.speech_stopped", HandleInputAudioBufferSpeechStopped},
         };
     }
 
     // EVENT HANDLERS
 
-    private void HandleErrorEvent(string jsonEvent) { }
+    private void HandleErrorEvent(string jsonEvent)
+        => Debug.LogError($"Event Error: {jsonEvent}");
 
-    private void HandleSessionCreatedEvent(string jsonEvent) { Debug.Log("Session created!"); }
+    private void HandleSessionCreatedEvent(string jsonEvent)
+        => print("<color=#8FD694>Realtime API Session Created</color>");
 
     /// <summary>
     /// only subscribe to sending audio after the conversation is configured.
@@ -29,7 +33,6 @@ public partial class RealtimeClient
     /// <param name="jsonEvent"></param>
     private void HandleSessionUpdatedEvent(string jsonEvent)
     {
-
         if (isConversationInitialized)
             return;
         isConversationInitialized = true;
@@ -56,6 +59,11 @@ public partial class RealtimeClient
 
                 if (partObject != null && partObject["audio"] != null)
                 {
+                    //Log the audio response transcription
+                    if (partObject["text"] != null)
+                        Debug.Log($"<color=#61E8E1>GPT: {partObject["text"]}</color>");
+
+
                     string base64Audio = partObject["audio"].ToString();
 
                     byte[] decodedData = DecodeAudioData(base64Audio);
@@ -65,6 +73,7 @@ public partial class RealtimeClient
                 else
                 {
                     Debug.LogWarning("'part' object is missing 'audio' property in event.");
+                    Debug.Log(jsonEvent.ToString());
                 }
             }
             else
@@ -77,5 +86,16 @@ public partial class RealtimeClient
             Debug.LogError($"Error handling 'response.content_part.added' event: {ex.Message}");
         }
     }
+
+    private void HandleInputAudioBufferSpeechStarted(string jsonEvent)
+    {
+        Debug.Log("<color=#5B5B5B>Server VAD: User speech started.</color>");
+    }
+
+    private void HandleInputAudioBufferSpeechStopped(string jsonEvent)
+    {
+        Debug.Log("<color=#5B5B5B>Server VAD: User speech stopped.</color>");
+    }
+
 
 }

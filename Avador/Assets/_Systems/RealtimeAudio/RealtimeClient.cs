@@ -30,9 +30,14 @@ public partial class RealtimeClient : MonoBehaviour
         _webSocket = new ClientWebSocket();
         _webSocket.Options.SetRequestHeader("Authorization", $"Bearer {_apiKey}");
         _webSocket.Options.SetRequestHeader("OpenAI-Beta", "realtime=v1");
+
+        //Authorization handshake
         await _webSocket.ConnectAsync(_uri, CancellationToken.None);
-        print("<color=#8FD694>Connected to OpenAI Realtime API</color>");
+
+        //Start message receive loop
         _ = Task.Run(ReceiveMessagesAsync);
+
+        //Configure session parameters
         await InitiateConversation();
     }
 
@@ -73,7 +78,6 @@ public partial class RealtimeClient : MonoBehaviour
 
             await _webSocket.SendAsync(new ArraySegment<byte>(jsonBytes), WebSocketMessageType.Text, true, CancellationToken.None);
 
-            Debug.Log($"successfully sent:\n{jsonString}");
         }
         catch (Exception e)
         {
@@ -104,7 +108,9 @@ public partial class RealtimeClient : MonoBehaviour
 
     public async Task ReceiveMessagesAsync()
     {
-        var buffer = new byte[1024 * 4];
+        var buffer = new byte[1024 * 16];
+        var messageBuilder = new StringBuilder(); //handles message defragmentation
+
         while (_webSocket.State == WebSocketState.Open)
         {
             try
@@ -112,8 +118,14 @@ public partial class RealtimeClient : MonoBehaviour
                 var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    string jsonString = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    HandleServerEvent(jsonString);
+                    messageBuilder.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
+
+                    if (result.EndOfMessage)
+                    {
+                        string completeMessage = messageBuilder.ToString();
+                        messageBuilder.Clear();
+                        HandleServerEvent(completeMessage);
+                    }
                 }
                 else if (result.MessageType == WebSocketMessageType.Close)
                 {
@@ -140,7 +152,7 @@ public partial class RealtimeClient : MonoBehaviour
 
                 if (eventHandlers.TryGetValue(eventType, out Action<string> handler))
                     handler.Invoke(jsonEvent);
-                else Debug.LogWarning($"No Handler found for event type: {eventType}");
+                // else Debug.LogWarning($"No Handler found for event type: {eventType}");
             }
             else Debug.LogWarning("Invalid event format. Missing field 'type'");
 
