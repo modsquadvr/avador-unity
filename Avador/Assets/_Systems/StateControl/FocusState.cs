@@ -11,7 +11,7 @@ public class FocusState: IState
 
 	public void Enter()
 	{
-		_bubbleController.SelectBubble();
+		_bubbleController.SelectBubble(_contentProvider.CurrentObjectId);
 	}
 
 	public void Update()

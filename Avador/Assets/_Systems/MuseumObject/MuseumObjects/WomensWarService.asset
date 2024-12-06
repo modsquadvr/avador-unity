@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d816dd3881e2b284ca5c9d16c4e3f0f6, type: 3}
+  m_Name: WomensWarService
+  m_EditorClassIdentifier: 
+  Id: 0
+  MainImage: {fileID: 4618003492624559900, guid: 5455eda303ba64746b2e739fdbaaebb5, type: 3}
+  OtherImages:
+  - {fileID: 5189181636370945977, guid: a7241c79cc0961e43a0cc585ed90b64e, type: 3}
+  - {fileID: 658276823007461469, guid: 9509df0a037e09340b9088863829aebd, type: 3}
+  - {fileID: -7186570359957481439, guid: f2016b07da99771469cc1bac4a5c5af7, type: 3}
+  - {fileID: 6586872105165905984, guid: 0816c5f3b6067684baf6d854f1515b0b, type: 3}
+  - {fileID: -1954561610432132342, guid: 5fd2d68386c4a7e42b10e57d22be2526, type: 3}

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d816dd3881e2b284ca5c9d16c4e3f0f6, type: 3}
+  m_Name: JohnLennonsRollsRoyce
+  m_EditorClassIdentifier: 
+  Id: 0
+  MainImage: {fileID: 2517518353933010080, guid: 6ad53feb913ca624bb28c8857379c6c9, type: 3}
+  OtherImages:
+  - {fileID: 6755687517620815461, guid: 420c8fec016ba8e43bb8f0730a55c602, type: 3}
+  - {fileID: -440140506146233628, guid: d08e17c64ce14e54ca5ea67b109936e1, type: 3}

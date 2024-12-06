@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 /// <summary>
@@ -8,9 +10,12 @@ using Random = UnityEngine.Random;
 /// </summary>
 public class Bubble : MonoBehaviour
 {
-	public void Initialize(float speed)
+	public void Initialize(float speed, Sprite object_image, int object_id)
 	{
 		Speed = speed + Random.Range(-0.2f,0.2f);
+		MuseumObjectSpriteRenderer.SetSprite(object_image);
+		Id = object_id;
+		IdText.text = Id.ToString();
 	}
 	
 	private enum State
@@ -23,6 +28,10 @@ public class Bubble : MonoBehaviour
 	
 	public Action<Bubble> OnSelectionComplete;
 	public Action<Bubble> OnBubbleShouldBeDestroyed;
+
+	public int Id; // Corresponds to the Id of the object pictured in the bubble
+	public SpriteScaler MuseumObjectSpriteRenderer;
+	public TMP_Text IdText; 
 	
 	public float Speed = 1.0f; // Controls the vertical floating speed
 	public float NoiseScale = 4f; // Controls the scale of the Perlin noise
@@ -64,7 +73,8 @@ public class Bubble : MonoBehaviour
 	{
 		_timeInSpawnAnimation += Time.deltaTime /2f;
 		transform.localScale = Vector3.Lerp(Vector3.zero, _initialScale, _timeInSpawnAnimation*2);
-		transform.localPosition = Vector3.Lerp(Vector3.zero, _finalPosition, _timeInSpawnAnimation);
+		if (_timeInSpawnAnimation < 0.5f) transform.localPosition = Vector3.Lerp(Vector3.zero, Vector3.left, _timeInSpawnAnimation*2);
+		else transform.localPosition = Vector3.Lerp(Vector3.left, _finalPosition, (_timeInSpawnAnimation - 0.5f));
 		_initialPosition = transform.localPosition;
 		
 		if (_timeInSpawnAnimation >= 1) _bubblePlayedSpawnAnimation = true;
