@@ -25,6 +25,7 @@ public class AudioProcessor
         {
             byte[] processedAudio = ResampleInput(rawAudio);
             OnInputAudioProcessed?.Invoke(processedAudio);
+            // Debug.Log($"processed audio: [{rawAudio.Length}->{processedAudio.Length}]");
         });
     }
 
@@ -49,11 +50,11 @@ public class AudioProcessor
             throw new ArgumentException("Input sample rate must be greater than target sample rate.");
         }
 
-        int outputSampleCount = inputAudio.Length / AudioConfig.targetSampleRate;
+        int outputSampleCount = inputAudio.Length / AudioConfig.targetSampleInterval;
 
-        byte[] outputAudio = new byte[outputSampleCount * sizeof(short)]; // 16-bit PCM = 2 bytes / sample
+        byte[] outputAudio = new byte[outputSampleCount * sizeof(short)];
 
-        for (int i = 0, j = 0; i < outputSampleCount; i++, j += AudioConfig.targetSampleRate)
+        for (int i = 0, j = 0; i < outputSampleCount; i++, j += AudioConfig.targetSampleInterval)
         {
             float clampedValue = Mathf.Clamp(inputAudio[j], -1.0f, 1.0f);
 
@@ -67,6 +68,7 @@ public class AudioProcessor
 
         return outputAudio;
     }
+
 
     /// <summary>
     /// resample audio data recieved from OpenAI to a format that unity can process with an AudioSource
