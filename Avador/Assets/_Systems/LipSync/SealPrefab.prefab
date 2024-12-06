@@ -59,28 +59,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eff18cf091543b14689badd10b389f5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animationPlayer: {fileID: 0}
+  _animationPlayer: {fileID: 2576869872040941658}
   _playableAnimations:
-  - Clip: {fileID: 0}
-    BlendInTime: 0
+  - Clip: {fileID: 7400000, guid: 21ededdc05f544d4bafbdc6a2bf56251, type: 2}
+    BlendInTime: 0.2
+    Loop: 1
+    BlendLoop: 0
+    RandomizeClip: 0
+    Clips: []
+  - Clip: {fileID: 7400000, guid: b792116afaff3a449ac8cf3d82f251f8, type: 2}
+    BlendInTime: 0.1
     Loop: 0
     BlendLoop: 0
     RandomizeClip: 0
     Clips: []
-  - Clip: {fileID: 0}
-    BlendInTime: 0
-    Loop: 0
+  - Clip: {fileID: 7400000, guid: 68e75bcae799aa9458f48e05e21a7d39, type: 2}
+    BlendInTime: 0.2
+    Loop: 1
     BlendLoop: 0
     RandomizeClip: 0
     Clips: []
-  - Clip: {fileID: 0}
-    BlendInTime: 0
-    Loop: 0
-    BlendLoop: 0
-    RandomizeClip: 0
-    Clips: []
-  - Clip: {fileID: 0}
-    BlendInTime: 0
+  - Clip: {fileID: 7400000, guid: f7d202f76c1f9734dbe238b009e296e6, type: 2}
+    BlendInTime: 0.2
     Loop: 0
     BlendLoop: 0
     RandomizeClip: 0
