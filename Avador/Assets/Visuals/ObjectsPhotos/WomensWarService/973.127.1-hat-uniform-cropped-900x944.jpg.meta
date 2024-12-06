@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      973.127.1-hat-uniform-cropped-900x944_0: -1954561610432132342
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
