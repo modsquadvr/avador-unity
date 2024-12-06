@@ -75,7 +75,7 @@ public class Bubble : MonoBehaviour
 		transform.localScale = Vector3.Lerp(Vector3.zero, _initialScale, _timeInSpawnAnimation*2);
 		// if (_timeInSpawnAnimation < 0.5f) transform.localPosition = Vector3.Lerp(Vector3.zero, Vector3.left, _timeInSpawnAnimation*2);
 		// else 
-			transform.localPosition = Vector3.Lerp(Vector3.left * 2, _finalPosition, (_timeInSpawnAnimation * 1.5f - 0.5f));
+			transform.localPosition = Vector3.Lerp(Vector3.left*1.2f, _finalPosition, (_timeInSpawnAnimation * 1.5f - 0.5f));
 		_initialPosition = transform.localPosition;
 		
 		if (_timeInSpawnAnimation >= 1) _bubblePlayedSpawnAnimation = true;
@@ -96,16 +96,12 @@ public class Bubble : MonoBehaviour
 		);
 	}
 
-	public async void OnSelect()
+	public async void OnSelect(Vector3 destination)
 	{
 		//Disable regular update/switch states
 		_state = State.SELECTION;
 		transform.localScale = _initialScale;
-		//Get center screen position and lerp to it
-		Vector3 destination = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width/2f,Screen.height/2f,0));
-		destination.z = 0;
 
-		Debug.Log($"[Bubble.OnSelect] destination: {destination}");
 		float time = 0;
 		while (time < 3)
 		{

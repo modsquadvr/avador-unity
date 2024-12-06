@@ -10,6 +10,10 @@ public class BubbleControllerFloating : MonoBehaviour
     [SerializeField] private float _spawnRange;
     [SerializeField] private int _burstAmount;
     [SerializeField] private int _burstDelay;
+
+    [SerializeField] private SealAnimationRunner _sealAnimationRunner;
+
+    [SerializeField] private Transform _bubbleDestinationOnSelect;
     
     [SerializeField] private ContentProvider _contentProvider;
     private List<int> _museumObjectIdsCurrentlyInBubbles = new();
@@ -39,35 +43,41 @@ public class BubbleControllerFloating : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-            SelectBubble(0);
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            SelectBubble(1);
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-            SelectBubble(2);
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-            SelectBubble(3);
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-            SelectBubble(4);
-    }
-
     public void SelectBubble(int bubble_id)
     {
         Debug.Log("Selecting bubble");
         Bubble selectedBubble = _bubbles.Find(bubble => bubble.Id == bubble_id);
         if (selectedBubble == null) Debug.LogWarning("Requested bubble not present.");
         
+        _sealAnimationRunner.PlaySwimUp();
+        
         foreach (Bubble bubble in _bubbles)
         {
             if (bubble == selectedBubble)
             {
                 bubble.OnSelectionComplete += TransitionToShowcase;
-                bubble.OnSelect();
+                bubble.OnSelect(_bubbleDestinationOnSelect.position);
             }
             else bubble.OnOtherSelected();
         }
+    }
+
+    private bool skippedFirstSwimDown;
+    public void EnterBubbleProducingState()
+    {
+        List<Bubble> tempBubbles = new(_bubbles);
+        foreach (Bubble bubble in tempBubbles)
+        {
+            RemoveBubble(bubble);
+        }
+        if (!skippedFirstSwimDown)
+        {
+            skippedFirstSwimDown = true;
+            return;
+        }
+        _sealAnimationRunner.PlaySwimDown();
+        _timer = 0;
+        _burstCount = 0;
     }
 
     private void TransitionToShowcase(Bubble bubble)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,37 +14,23 @@ public class SealAnimationRunner : MonoBehaviour
 		_animationPlayer.PlayAnimation(_playableAnimations[0]);
 	}
 
-	private void Update()
-	{
-		if (Input.GetKeyDown(KeyCode.Alpha1))
-		{
-			_animationPlayer.PlayAnimation(_playableAnimations[0]);
-		}
-		if (Input.GetKeyDown(KeyCode.Alpha2))
-		{
-			_animationPlayer.PlayAnimation(_playableAnimations[1]);
-
-		}
-		if (Input.GetKeyDown(KeyCode.Alpha3))
-		{
-			_animationPlayer.PlayAnimation(_playableAnimations[2]);
-
-		}
-		if (Input.GetKeyDown(KeyCode.Alpha4))
-		{
-			_animationPlayer.PlayAnimation(_playableAnimations[3]);
-
-		}
-	}
-
 	public void PlayDormant()
 	{
 		_animationPlayer.PlayAnimation(_playableAnimations[0]);
 	}
+	
 	public void PlaySwimUp()
 	{
 		_animationPlayer.PlayAnimation(_playableAnimations[1]);
+		StartCoroutine(PlayTalkingIdleInABit());
 	}
+	private IEnumerator PlayTalkingIdleInABit()
+	{
+		yield return new WaitForSeconds(_playableAnimations[1].Clip.length);
+
+		PlayTalkingIdle();
+	}
+	
 	public void PlayTalkingIdle()
 	{
 		_animationPlayer.PlayAnimation(_playableAnimations[2]);

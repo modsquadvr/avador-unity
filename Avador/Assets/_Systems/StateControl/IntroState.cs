@@ -12,6 +12,7 @@ public class IntroState : IState
 
     public void Enter()
     {
+        _bubbleController.EnterBubbleProducingState();
     }
 
     public void Update()

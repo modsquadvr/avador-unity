@@ -4,8 +4,8 @@ using UnityEngine;
 public class StateController : MonoBehaviour
 {
     [SerializeField] private BubbleControllerFloating _bubbleController;
+    [SerializeField] private ContentProvider _contentProvider;
     private StateMachine _stateMachine;
-    private ContentProvider _contentProvider;
 
     private void Start()
     {
@@ -16,9 +16,18 @@ public class StateController : MonoBehaviour
     private void Update()
     {
         _stateMachine.Update();
-        if (Input.GetKeyDown(KeyCode.End)) //DEBUG
+        for (int i = 0; i <= 9; i++)
         {
-            TransitionTo(AvadorStates.FOCUS);
+            if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i)))
+            {
+                _contentProvider.CurrentObjectId = i;
+                TransitionTo(AvadorStates.FOCUS);
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.End))
+        {
+            TransitionTo(AvadorStates.INTRO);
         }
     }
 

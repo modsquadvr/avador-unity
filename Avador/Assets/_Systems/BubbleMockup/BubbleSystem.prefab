@@ -84,7 +84,39 @@ Transform:
   - {fileID: 3673425721806857812}
   - {fileID: 7822228662927985147}
   - {fileID: 2234474479587357611}
+  - {fileID: 7550798033287832296}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2621733560094674683
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7550798033287832296}
+  m_Layer: 0
+  m_Name: BubbleDestinationOnSelect
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7550798033287832296
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2621733560094674683}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.07, y: 2.22, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3957861832995325140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5753232761409942796
 GameObject:
@@ -131,6 +163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bubbleController: {fileID: 4749593846934974820}
+  _contentProvider: {fileID: 3457051827576731541}
 --- !u!1001 &8315913273826562472
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -167,6 +200,10 @@ PrefabInstance:
       propertyPath: _mockupPictureTwo
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3639468564338172108, guid: b9956885ae376dc47af1da8b6d4f67ff, type: 3}
+      propertyPath: _bubbleDestinationOnSelect
+      value: 
+      objectReference: {fileID: 7550798033287832296}
     - target: {fileID: 5103921489723869091, guid: b9956885ae376dc47af1da8b6d4f67ff, type: 3}
       propertyPath: m_Name
       value: BubbleControllerFloating
@@ -181,7 +218,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7812194644038099459, guid: b9956885ae376dc47af1da8b6d4f67ff, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.83
+      value: -3.64
       objectReference: {fileID: 0}
     - target: {fileID: 7812194644038099459, guid: b9956885ae376dc47af1da8b6d4f67ff, type: 3}
       propertyPath: m_LocalPosition.z
