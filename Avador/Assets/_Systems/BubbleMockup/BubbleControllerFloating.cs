@@ -10,7 +10,6 @@ public class BubbleControllerFloating : MonoBehaviour
     [SerializeField] private float _spawnRange;
     [SerializeField] private int _burstAmount;
     [SerializeField] private int _burstDelay;
-    [SerializeField] private CanvasGroup _showcaseInfo;
     
     [SerializeField] private ContentProvider _contentProvider;
     private List<int> _museumObjectIdsCurrentlyInBubbles = new();
@@ -75,18 +74,6 @@ public class BubbleControllerFloating : MonoBehaviour
     {
         bubble.OnSelectionComplete -= TransitionToShowcase;
         Debug.Log("Transition complete");
-        StartCoroutine(FadeInShowcaseScreen());
-    }
-
-    private IEnumerator FadeInShowcaseScreen()
-    {
-        float alpha = 0;
-        while (alpha < 1)
-        {
-            alpha += Time.deltaTime;
-            _showcaseInfo.alpha = alpha;
-            yield return null;
-        }
     }
 
     private void RemoveBubble(Bubble bubble)

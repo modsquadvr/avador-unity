@@ -73,8 +73,9 @@ public class Bubble : MonoBehaviour
 	{
 		_timeInSpawnAnimation += Time.deltaTime /2f;
 		transform.localScale = Vector3.Lerp(Vector3.zero, _initialScale, _timeInSpawnAnimation*2);
-		if (_timeInSpawnAnimation < 0.5f) transform.localPosition = Vector3.Lerp(Vector3.zero, Vector3.left, _timeInSpawnAnimation*2);
-		else transform.localPosition = Vector3.Lerp(Vector3.left, _finalPosition, (_timeInSpawnAnimation - 0.5f));
+		// if (_timeInSpawnAnimation < 0.5f) transform.localPosition = Vector3.Lerp(Vector3.zero, Vector3.left, _timeInSpawnAnimation*2);
+		// else 
+			transform.localPosition = Vector3.Lerp(Vector3.left * 2, _finalPosition, (_timeInSpawnAnimation * 1.5f - 0.5f));
 		_initialPosition = transform.localPosition;
 		
 		if (_timeInSpawnAnimation >= 1) _bubblePlayedSpawnAnimation = true;
