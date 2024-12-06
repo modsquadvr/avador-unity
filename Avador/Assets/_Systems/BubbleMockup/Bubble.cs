@@ -10,12 +10,22 @@ using Random = UnityEngine.Random;
 /// </summary>
 public class Bubble : MonoBehaviour
 {
-	public void Initialize(float speed, Sprite object_image, int object_id)
+	public void Initialize(float speed, Sprite object_image, int object_id, bool start_at_full_size = false)
 	{
 		Speed = speed + Random.Range(-0.2f,0.2f);
 		MuseumObjectSpriteRenderer.SetSprite(object_image);
 		Id = object_id;
 		IdText.text = Id.ToString();
+		
+		_initialPosition = transform.localPosition;
+		_finalPosition = _initialPosition;
+		_initialScale = transform.localScale;
+		_startTime = Time.time;
+		_bubblePlayedSpawnAnimation = false;
+		
+		if(start_at_full_size) return;
+		transform.localPosition = Vector3.zero;
+		transform.localScale = Vector3.zero;
 	}
 	
 	private enum State
@@ -31,7 +41,9 @@ public class Bubble : MonoBehaviour
 
 	public int Id; // Corresponds to the Id of the object pictured in the bubble
 	public SpriteScaler MuseumObjectSpriteRenderer;
-	public TMP_Text IdText; 
+	public TMP_Text IdText;
+	public ParticleSystem BubblePop;
+	public SpriteRenderer BubbleSpriteRenderer;
 	
 	public float Speed = 1.0f; // Controls the vertical floating speed
 	public float NoiseScale = 4f; // Controls the scale of the Perlin noise
@@ -43,19 +55,7 @@ public class Bubble : MonoBehaviour
 	private float _randomOffset;
 	private float _startTime;
 	private bool _bubblePlayedSpawnAnimation = false;
-
-	void Start()
-	{
-		// Record the initial position of each bubble
-		_initialPosition = transform.localPosition;
-		_finalPosition = _initialPosition;
-		_initialScale = transform.localScale;
-		_startTime = Time.time;
-		_bubblePlayedSpawnAnimation = false;
-		transform.localPosition = Vector3.zero;
-		transform.localScale = Vector3.zero;
-	}
-
+	
 	void Update()
 	{
 		if (_state != State.FLOAT) return;
@@ -136,5 +136,12 @@ public class Bubble : MonoBehaviour
 		}
 		//Destroy when off screen
 		OnBubbleShouldBeDestroyed?.Invoke(this);
+	}
+
+	public void Pop()
+	{
+		BubbleSpriteRenderer.enabled = false;
+		BubblePop.Play();
+		IdText.enabled = false;
 	}
 }

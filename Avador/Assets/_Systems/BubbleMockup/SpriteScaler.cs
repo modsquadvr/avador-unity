@@ -19,6 +19,6 @@ public class SpriteScaler : MonoBehaviour
 
 		// Set the new scale, maintaining aspect ratio
 		float uniformScale = Mathf.Min(scaleX, scaleY);
-		transform.localScale = Vector3.one * uniformScale;
+		transform.localScale *= uniformScale;
 	}
 }

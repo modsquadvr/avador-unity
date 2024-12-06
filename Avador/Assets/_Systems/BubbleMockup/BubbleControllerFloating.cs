@@ -12,6 +12,7 @@ public class BubbleControllerFloating : MonoBehaviour
     [SerializeField] private int _burstDelay;
 
     [SerializeField] private SealAnimationRunner _sealAnimationRunner;
+    [SerializeField] private SpriteFader _otherImagesDisplay;
 
     [SerializeField] private Transform _bubbleDestinationOnSelect;
     
@@ -47,7 +48,12 @@ public class BubbleControllerFloating : MonoBehaviour
     {
         Debug.Log("Selecting bubble");
         Bubble selectedBubble = _bubbles.Find(bubble => bubble.Id == bubble_id);
-        if (selectedBubble == null) Debug.LogWarning("Requested bubble not present.");
+        if (selectedBubble == null)
+        {
+            Debug.Log("Bubble not present, making it now.");
+            SpawnSpecificBubble(bubble_id);
+            selectedBubble = _bubbles.Find(bubble => bubble.Id == bubble_id);
+        }
         
         _sealAnimationRunner.PlaySwimUp();
         
@@ -65,6 +71,7 @@ public class BubbleControllerFloating : MonoBehaviour
     private bool skippedFirstSwimDown;
     public void EnterBubbleProducingState()
     {
+        _otherImagesDisplay.StopFadingSprites();
         List<Bubble> tempBubbles = new(_bubbles);
         foreach (Bubble bubble in tempBubbles)
         {
@@ -84,6 +91,8 @@ public class BubbleControllerFloating : MonoBehaviour
     {
         bubble.OnSelectionComplete -= TransitionToShowcase;
         Debug.Log("Transition complete");
+        bubble.Pop();
+        _otherImagesDisplay.StartFadingSprites(_contentProvider.MuseumObjectSOs[bubble.Id].OtherImages);
     }
 
     private void RemoveBubble(Bubble bubble)
@@ -104,6 +113,20 @@ public class BubbleControllerFloating : MonoBehaviour
         _bubbles.Add(bubble);
         
         bubble.Initialize(_speed, museumObjectSO.MainImage, museumObjectSO.Id);
+        bubble.transform.position = new Vector3(Random.Range(-_spawnRange,_spawnRange), transform.position.y, 0);
+        bubble.OnBubbleShouldBeDestroyed += RemoveBubble;
+    }
+    
+    private void SpawnSpecificBubble(int id)
+    {
+        MuseumObjectSO museumObjectSO = _contentProvider.MuseumObjectSOs[id];
+        if(museumObjectSO == null) return;
+        
+        Bubble bubble = Instantiate(_bubblePrefab, transform);
+        _museumObjectIdsCurrentlyInBubbles.Add(museumObjectSO.Id);
+        _bubbles.Add(bubble);
+        
+        bubble.Initialize(_speed, museumObjectSO.MainImage, museumObjectSO.Id, true);
         bubble.transform.position = new Vector3(Random.Range(-_spawnRange,_spawnRange), transform.position.y, 0);
         bubble.OnBubbleShouldBeDestroyed += RemoveBubble;
     }
