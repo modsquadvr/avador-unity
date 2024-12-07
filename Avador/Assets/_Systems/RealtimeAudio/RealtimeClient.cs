@@ -16,12 +16,27 @@ public partial class RealtimeClient : MonoBehaviour
     private Dictionary<string, Action<string>> eventHandlers;
 
     private bool isConversationInitialized;
+    private bool _enableAudioSend;
+
+    //singleton
+    public static RealtimeClient Instance;
+
+    //events
+    public Action<string> OnResponseDone;
 
     public void Awake()
-    => InitializeEventHandlers();
+    {
+        if (Instance is not null)
+            Debug.LogError("There can only be one RealtimeClient");
+        Instance = this;
+        InitializeEventHandlers();
+    }
 
     public void OnDestroy()
-    => AudioProcessor.Instance.OnInputAudioProcessed -= HandleInputAudioProcessed;
+    {
+        AudioProcessor.Instance.OnInputAudioProcessed -= HandleInputAudioProcessed;
+        Instance = null;
+    }
 
     public async void Start() => await Task.Run(ConnectAsync);
 
@@ -175,7 +190,10 @@ public partial class RealtimeClient : MonoBehaviour
     }
 
     private async void HandleInputAudioProcessed(byte[] audioData)
-        => await SendAudioDataAsync(audioData);
+    {
+        if (_enableAudioSend)
+            await SendAudioDataAsync(audioData);
+    }
 
 
 

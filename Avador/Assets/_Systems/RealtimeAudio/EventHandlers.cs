@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
-
+using UPP.Utils;
 public partial class RealtimeClient
 {
     private void InitializeEventHandlers()
@@ -16,6 +16,10 @@ public partial class RealtimeClient
             { "response.content_part.added", HandleResponseContentPartAdded },
             { "input_audio_buffer.speech_started", HandleInputAudioBufferSpeechStarted},
             { "input_audio_buffer.speech_stopped", HandleInputAudioBufferSpeechStopped},
+            { "response.created", HandleResponseCreated},
+            { "response.done", HandleResponseDone},
+            { "conversation.item.input_audio_transcription.completed", HandleInputTranscription},
+            { "response.audio.delta", HandleResponseAudioDelta},
         };
     }
 
@@ -36,9 +40,10 @@ public partial class RealtimeClient
         if (isConversationInitialized)
             return;
         isConversationInitialized = true;
+        _enableAudioSend = true;
 
         AudioProcessor.Instance.OnInputAudioProcessed += HandleInputAudioProcessed;
-        Debug.Log("Session updated. Sending microphone data.");
+        Debug.Log($"Session updated: Now Sending microphone data. Session Details: \n {jsonEvent}");
     }
 
     /// <summary>
@@ -48,42 +53,40 @@ public partial class RealtimeClient
 
     private void HandleResponseContentPartAdded(string jsonEvent)
     {
+
+    }
+
+    private void HandleResponseAudioDelta(string jsonEvent)
+    {
         try
         {
-            // Step 1: Parse the JSON object
             var eventObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonEvent);
-
-            if (eventObject != null && eventObject.ContainsKey("part"))
+            if (eventObject != null && eventObject.ContainsKey("delta"))
             {
-                var partObject = eventObject["part"] as JObject;
-
-                if (partObject != null && partObject["audio"] != null)
+                // Extract the base64-encoded audio delta
+                string base64AudioDelta = eventObject["delta"]?.ToString();
+                if (!string.IsNullOrEmpty(base64AudioDelta))
                 {
-                    //Log the audio response transcription
-                    if (partObject["text"] != null)
-                        Debug.Log($"<color=#61E8E1>GPT: {partObject["text"]}</color>");
+                    // Decode the Base64 string into a byte array
+                    byte[] decodedData = DecodeAudioData(base64AudioDelta);
 
-
-                    string base64Audio = partObject["audio"].ToString();
-
-                    byte[] decodedData = DecodeAudioData(base64Audio);
+                    // Process the decoded audio data
                     AudioProcessor.Instance.ProcessAudioOut(decodedData);
-
+                    Debug.Log("Processed audio delta successfully.");
                 }
                 else
                 {
-                    Debug.LogWarning("'part' object is missing 'audio' property in event.");
-                    Debug.Log(jsonEvent.ToString());
+                    Debug.LogWarning("Delta property is empty or null.");
                 }
             }
             else
             {
-                Debug.LogWarning("'response.content_part.added' event is missing 'part' property.");
+                Debug.LogWarning($"Response is missing 'delta' property: {jsonEvent}");
             }
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Debug.LogError($"Error handling 'response.content_part.added' event: {ex.Message}");
+            Debug.LogError($"Error processing audio delta: {e.Message}");
         }
     }
 
@@ -97,5 +100,60 @@ public partial class RealtimeClient
         Debug.Log("<color=#5B5B5B>Server VAD: User speech stopped.</color>");
     }
 
+    private void HandleResponseCreated(string jsonEvent)
+    {
+        Debug.Log("<color=red>Response created.</color>");
+        Debug.Log(jsonEvent.ToString());
+        //IF WE RECEIVE AN AUDIO RESPONSE, STOP SENDING AUDIO - TEMP FIX
+        _enableAudioSend = false;
+    }
+    private void HandleResponseDone(string jsonEvent)
+    {
+        Debug.Log("<color=red>Response done.</color>");
+        Debug.Log(jsonEvent.ToString());
+        //WHEN THE AUDIO RESPONSE IS DONE, START SENDING AUDIO AGAIN - TEMP FIX
+        _enableAudioSend = true;
 
+        //response -> output -> content -> text
+        // try
+        // {
+        var jsonObject = JObject.Parse(jsonEvent);
+
+        // Navigate to response -> output
+        var outputArray = jsonObject["response"]?["output"] as JArray;
+        if (outputArray == null)
+            throw new Exception("Output array not found in response.");
+
+        // Loop through the array and extract the "text" field from "content"
+        foreach (var outputItem in outputArray)
+        {
+            var contentArray = outputItem["content"] as JArray;
+            if (contentArray != null)
+            {
+                foreach (var contentItem in contentArray)
+                {
+                    if (contentItem["type"]?.ToString() == "audio")
+                    {
+                        string transcript = contentItem["transcript"]?.ToString();
+                        print($"<color=#44FFD2>Response: {transcript}</color>");
+                        // OnResponseDone.Invoke(transcript);
+                        MainThreadDispatcher.Instance.Enqueue(() =>
+                        {
+                            OnResponseDone?.Invoke(transcript);
+                        });
+                    }
+                }
+            }
+        }
+        // }
+        // catch (Exception e)
+        // {
+        //     Debug.LogError($"Error handling response done event: {e}");
+        // }
+    }
+    private void HandleInputTranscription(string jsonEvent)
+    {
+        Debug.Log("<color=red>Input transcription.</color>");
+        Debug.Log(jsonEvent.ToString());
+    }
 }
