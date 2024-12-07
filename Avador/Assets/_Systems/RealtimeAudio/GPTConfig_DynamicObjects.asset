@@ -21,5 +21,6 @@ MonoBehaviour:
     about it in a way that continues the conversation with natural flow and suggest
     an alternative, which is to talk about a different object. Be very brief when
     introducing the objects, instead ask the user what about the object they are
-    interested in hearing about.\n\nEach time that you start discussing a new object,
+    interested in hearing about. When elaborating, also be brief and keep your points
+    to 3 sentences when possible.\n\nEach time that you start discussing a new object,
     call the identify_item function with the item's appropriate id as the argument.\n\r"
