@@ -9,6 +9,7 @@ using System.Collections.Generic;
 
 public partial class RealtimeClient : MonoBehaviour
 {
+    [SerializeField] private GPTConfig config;
     private ClientWebSocket _webSocket;
     private Uri _uri = new Uri("wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01");
     private string _apiKey => Secret.API_KEY;
@@ -29,10 +30,22 @@ public partial class RealtimeClient : MonoBehaviour
         InitializeEventHandlers();
     }
 
-    public void OnDestroy()
+    public async void OnDestroy()
     {
-        AudioProcessor.Instance.OnInputAudioProcessed -= HandleInputAudioProcessed;
-        Instance = null;
+        try
+        {
+            if (_webSocket != null && _webSocket.State == WebSocketState.Open)
+                await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing connection", CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error while closing WebSocket: {e}");
+        }
+        finally
+        {
+            AudioProcessor.Instance.OnInputAudioProcessed -= HandleInputAudioProcessed;
+            Instance = null;
+        }
     }
 
     public async void Start() => await Task.Run(ConnectAsync);
@@ -67,8 +80,8 @@ public partial class RealtimeClient : MonoBehaviour
                 session = new
                 {
                     modalities = new[] { "text", "audio" },
-                    GPTConfig.instructions,
-                    GPTConfig.voice,
+                    config.instructions,
+                    voice = config.voice.ToString(),
                     input_audio_format = "pcm16",
                     output_audio_format = "pcm16",
                     input_audio_transcription = new
@@ -138,17 +151,7 @@ public partial class RealtimeClient : MonoBehaviour
     {
         try
         {
-            var request = new
-            {
-                type = "response.create",
-                // response = new
-                // {
-                //     modalities = new[] { "text", "audio" },
-                //     GPTConfig.voice,
-                //     output_audio_format = "pcm16",
-                // }
-
-            };
+            var request = new { type = "response.create" };
 
             string jsonString = JsonConvert.SerializeObject(request, Formatting.Indented);
 
@@ -206,7 +209,7 @@ public partial class RealtimeClient : MonoBehaviour
                 }
                 else if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    Debug.LogWarning("Websocket connection closed by server.");
+                    Debug.Log("Websocket connection closed.");
                     break;
                 }
             }
@@ -217,7 +220,7 @@ public partial class RealtimeClient : MonoBehaviour
         }
     }
 
-    // HELPERS
+    // HELPERS - - - -
     private void HandleServerEvent(string jsonEvent)
     {
         try
@@ -254,7 +257,4 @@ public partial class RealtimeClient : MonoBehaviour
         if (_enableAudioSend)
             await SendAudioDataAsync(audioData);
     }
-
-
-
 }

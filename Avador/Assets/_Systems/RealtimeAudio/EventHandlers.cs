@@ -14,10 +14,10 @@ public partial class RealtimeClient
             { "session.created", HandleSessionCreatedEvent },
             { "session.updated", HandleSessionUpdatedEvent },
             { "response.created", HandleResponseCreated },
+            { "response.audio.delta", HandleResponseAudioDelta },
+            { "response.audio_transcript.delta", HandleResponseAudioTranscriptDelta },
             { "response.done", HandleResponseDone },
             { "conversation.item.input_audio_transcription.completed", HandleInputTranscription },
-            { "response.audio.delta", HandleResponseAudioDelta },
-            { "response.audio_transcript.delta", HandleResponseAudioTranscriptDelta }
         };
     }
 
@@ -148,7 +148,6 @@ public partial class RealtimeClient
         }
     }
 
-
     private void HandleInputTranscription(string jsonEvent)
     {
         try
@@ -160,7 +159,7 @@ public partial class RealtimeClient
                 if (!string.IsNullOrEmpty(transcript))
                     print($"<color=#87F6FF>User: {transcript}</color>");
 
-                else Debug.LogWarning("Transcript property is empty or null.");
+                else Debug.LogWarning("Input transcript property is empty or null.");
             }
             else Debug.LogWarning($"Response is missing 'transcript' property: {jsonEvent}");
         }
