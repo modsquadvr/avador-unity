@@ -20,7 +20,10 @@ public partial class RealtimeClient
             { "response.audio_transcript.delta", HandleResponseAudioTranscriptDelta },
             { "response.done", HandleResponseDone },
             { "conversation.item.input_audio_transcription.completed", HandleInputTranscription },
-            { "response.function_call_arguments.done", HandleFunctionCallArgumentsDone }
+            { "response.function_call_arguments.done", HandleFunctionCallArgumentsDone },
+            { "input_audio_buffer.speech_started", HandleInputAudioBufferSpeechStarted },
+            { "input_audio_buffer.speech_stopped", HandleInputAudioBufferSpeechStopped },
+
         };
     }
 
@@ -28,6 +31,8 @@ public partial class RealtimeClient
     public Action OnResponseCreated;
     public Action<string> OnResponseAudioTranscriptDelta;
     public Action<int> OnItemSelected;
+    public Action OnSpeechStarted;
+    public Action OnReturnToBubbles;
 
     // EVENT HANDLERS
     private void HandleErrorEvent(string jsonEvent)
@@ -45,7 +50,6 @@ public partial class RealtimeClient
         if (isConversationInitialized)
             return;
         isConversationInitialized = true;
-        _enableAudioSend = true;
 
         AudioProcessor.Instance.OnInputAudioProcessed += HandleInputAudioProcessed;
     }
@@ -53,12 +57,10 @@ public partial class RealtimeClient
 
     private void HandleResponseCreated(string jsonEvent)
     {
-        //IF WE RECEIVE AN AUDIO RESPONSE, STOP SENDING AUDIO - TEMP FIX
-        _enableAudioSend = false;
-
         MainThreadDispatcher.Instance.Enqueue(() =>
         {
             OnResponseCreated?.Invoke();
+            AudioStreamMediator.TriggerResponseCreated();
         });
     }
 
@@ -73,6 +75,7 @@ public partial class RealtimeClient
             var eventObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonEvent);
             if (eventObject != null && eventObject.ContainsKey("delta"))
             {
+                //audio chunk
                 string base64AudioDelta = eventObject["delta"]?.ToString();
                 if (!string.IsNullOrEmpty(base64AudioDelta))
                 {
@@ -80,6 +83,15 @@ public partial class RealtimeClient
                     AudioProcessor.Instance.ProcessAudioOut(decodedData);
                 }
                 else Debug.LogWarning("Delta property is empty or null.");
+
+                //item ID of the response -- used in case of interruption
+                string itemID = eventObject["item_id"]?.ToString();
+                if (!string.IsNullOrEmpty(itemID))
+                {
+                    activeResponseID = itemID;
+                }
+                else Debug.LogWarning("item_id property is empty or null.");
+
             }
             else Debug.LogWarning($"Response is missing 'delta' property: {jsonEvent}");
         }
@@ -117,9 +129,6 @@ public partial class RealtimeClient
 
     private void HandleResponseDone(string jsonEvent)
     {
-        //WHEN THE AUDIO RESPONSE IS DONE, START SENDING AUDIO AGAIN - TEMP FIX
-        _enableAudioSend = true;
-
         //response -> output -> content -> text
         try
         {
@@ -198,6 +207,9 @@ public partial class RealtimeClient
                 case "identify_item":
                     HandleIdentifyItem(argumentsJson);
                     break;
+                case "return_to_suggestion_bubbles":
+                    HandleReturnToSuggestionBubbles();
+                    break;
 
                 default:
                     Debug.LogWarning($"Unhandled function name: {functionName}");
@@ -236,4 +248,38 @@ public partial class RealtimeClient
             Debug.LogError($"Error handling identify_item function: {e}");
         }
     }
+    
+    private void HandleReturnToSuggestionBubbles()
+    {
+        try
+        {
+            _ = Task.Run(RequestResponse);
+            MainThreadDispatcher.Instance.Enqueue(() =>
+            {
+                OnReturnToBubbles?.Invoke();
+            });
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error handling return_to_suggestion_bubbles function: {e}");
+        }
+    }
+
+    private void HandleInputAudioBufferSpeechStarted(string jsonEvent)
+    {
+
+        if (AudioStreamMediator.isAudioPlaying)
+        {
+            MainThreadDispatcher.Instance.Enqueue(() =>
+            {
+                AudioStreamMediator.TriggerAudioInterrupted();
+            });
+
+            _ = Task.Run(SendConversationItemTruncate);
+        }
+
+    }
+
+    private void HandleInputAudioBufferSpeechStopped(string jsonEvent) { }
+
 }

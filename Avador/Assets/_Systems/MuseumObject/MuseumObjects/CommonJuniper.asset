@@ -12,6 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d816dd3881e2b284ca5c9d16c4e3f0f6, type: 3}
   m_Name: CommonJuniper
   m_EditorClassIdentifier: 
-  Id: 0
+  Id: 1
+  ObjectName: Common juniper
+  Description: "\rDate:\r\n    collected in 1970\r\nRecord:\r\n    V086311\r\nScientific
+    Name:\r\n    Juniperus communis L.\r\n\r\nSome BC First Nations burned juniper
+    boughs to fumigate a house, or made a preparation from the cones to kill ticks
+    on horses.\r\n\r\nThis specimen of Common Juniper, Juniperus communis L. demonstrates
+    that having the breadth and depth of large natural history collections such as
+    ours requires the expertise and generosity of many community members in the province.
+    It was collected in Haida Gwaii in 1970 by ethnobotanist Nancy Turner, who donated
+    her plant collections to the RBCM herbarium.\r\n\r\nMany of our herbarium specimens
+    are donated by private individuals, environmental consultants, and students and
+    staff from colleges and universities.\r"
   MainImage: {fileID: 8727678511065526621, guid: e15dc44d85d0ec84aa4b5af0e6f2aa6d, type: 3}
   OtherImages: []

@@ -6,18 +6,23 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine.PlayerLoop;
 
 public partial class RealtimeClient : MonoBehaviour
 {
     [SerializeField] private GPTConfig config;
+    [SerializeField] private ContentProvider _contentProvider;
     private ClientWebSocket _webSocket;
     private Uri _uri = new Uri("wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01");
     private string _apiKey => Secret.API_KEY;
+    private string _initialConfigInstruction;
 
     private Dictionary<string, Action<string>> eventHandlers;
 
     private bool isConversationInitialized;
-    private bool _enableAudioSend;
+
+    private string activeResponseID;
 
     //singleton
     public static RealtimeClient Instance;
@@ -32,6 +37,8 @@ public partial class RealtimeClient : MonoBehaviour
 
     public async void OnDestroy()
     {
+        config.instructions = _initialConfigInstruction;
+        
         try
         {
             if (_webSocket != null && _webSocket.State == WebSocketState.Open)
@@ -61,6 +68,10 @@ public partial class RealtimeClient : MonoBehaviour
 
         //Start message receive loop
         _ = Task.Run(ReceiveMessagesAsync);
+        
+        //Add included objects from the ContentProvider to the config instructions
+        if (_contentProvider != null)
+            AddMuseumObjectsToConfig();
 
         //Configure session parameters
         await InitiateConversation();
@@ -68,6 +79,27 @@ public partial class RealtimeClient : MonoBehaviour
         //Send an inital "Hello", so it appears that the GPT is starting the conversation
         await SendConversationItem("Hello");
         await RequestResponse();
+    }
+
+    private void AddMuseumObjectsToConfig()
+    {
+        // Initialize a StringBuilder with the existing instructions.
+        StringBuilder builder = new StringBuilder(config.instructions);
+    
+        // Append a header and the museum objects.
+        builder.AppendLine();
+        builder.AppendLine("Objects with format ID: Name: (\nDescription\n)");
+    
+        foreach (MuseumObjectSO museumObject in _contentProvider.MuseumObjectSOs)
+        {
+            builder.AppendLine($"{museumObject.Id}: {museumObject.ObjectName}:(\n{museumObject.Description}\n)");
+        }
+    
+        // Update the config instructions with the built string.
+        _initialConfigInstruction = config.instructions;
+        config.instructions = builder.ToString();
+    
+        Debug.Log($"New config instructions: \n{config.instructions}");
     }
 
     private async Task InitiateConversation()
@@ -109,6 +141,18 @@ public partial class RealtimeClient : MonoBehaviour
                                     {"item_id", new { type = "integer" }}
                                 },
                                 required = new[] { "item_id" }
+                            }
+                        },
+                        new 
+                        {
+                            type = "function",
+                            name = "return_to_suggestion_bubbles",
+                            description = "Identify when no item is currently being discussed and a new one must be found.",
+                            parameters = new
+                            {
+                                type = "object",
+                                properties = new Dictionary<string, object>(),
+                                required = Array.Empty<string>()
                             }
                         }
                     },
@@ -179,6 +223,29 @@ public partial class RealtimeClient : MonoBehaviour
             Debug.LogError($"Error requesting response: {e}");
         }
 
+    }
+
+    private async Task SendConversationItemTruncate()
+    {
+        try
+        {
+            var truncateItem = new
+            {
+                type = "conversation.item.truncate",
+                item_id = activeResponseID,
+                content_index = 0,
+                AudioStreamMediator.audio_end_ms
+            };
+
+            string jsonString = JsonConvert.SerializeObject(truncateItem, Formatting.Indented);
+
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
+            await _webSocket.SendAsync(new ArraySegment<byte>(jsonBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error sending conversation.item.truncate: {e}");
+        }
     }
 
     private async Task SendAudioDataAsync(byte[] audioData)
@@ -270,7 +337,6 @@ public partial class RealtimeClient : MonoBehaviour
 
     private async void HandleInputAudioProcessed(byte[] audioData)
     {
-        if (_enableAudioSend)
-            await SendAudioDataAsync(audioData);
+        await SendAudioDataAsync(audioData);
     }
 }
