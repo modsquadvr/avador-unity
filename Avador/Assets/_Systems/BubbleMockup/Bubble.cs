@@ -32,7 +32,8 @@ public class Bubble : MonoBehaviour
 	private enum State
 	{
 		FLOAT,
-		SELECTION
+		SELECTED,
+		NOT_SELECTED
 	}
 
 	private State _state = State.FLOAT;
@@ -99,11 +100,12 @@ public class Bubble : MonoBehaviour
 			newY, 0
 		);
 	}
-
+	
 	public async void OnSelect(Vector3 destination)
 	{
+		GetComponent<Collider2D>().enabled = false;
 		//Disable regular update/switch states
-		_state = State.SELECTION;
+		_state = State.SELECTED;
 		transform.localScale = _initialScale;
 
 		float time = 0;
@@ -114,6 +116,8 @@ public class Bubble : MonoBehaviour
 			if (this == null) return;
 			transform.position = Vector3.Lerp(transform.position, destination, time/3);
 			await Task.Yield();
+			if (_state == State.NOT_SELECTED) //If a new bubble was selected, return
+				return;
 		}
 		//Play pop animation or something when reaching center
 			//Omitted in mockup
@@ -123,8 +127,10 @@ public class Bubble : MonoBehaviour
 
 	public async void OnOtherSelected()
 	{
+		GetComponent<Collider2D>().enabled = false;
+		
 		//Disable regular update/switch states
-		_state = State.SELECTION;
+		_state = State.NOT_SELECTED;
 		//Get the direction to the center, and move in the opposite of that direction
 		Vector3 directionToCenter = (Camera.main.ScreenToWorldPoint(new Vector3(Screen.width/2f,Screen.height/2f,0)) - transform.position);
 		directionToCenter.z = 0;
@@ -137,6 +143,8 @@ public class Bubble : MonoBehaviour
 			if (this == null) return;
 			transform.position -= directionToCenter * 4f *Time.deltaTime;
 			await Task.Yield();
+			if (_state == State.SELECTED) //if it got selected while moving away, don't destroy it
+				return;
 		}
 		//Destroy when off screen
 		OnBubbleShouldBeDestroyed?.Invoke(this);
