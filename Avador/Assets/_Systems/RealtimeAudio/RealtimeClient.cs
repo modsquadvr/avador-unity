@@ -51,6 +51,10 @@ public partial class RealtimeClient : MonoBehaviour
 
         //Configure session parameters
         await InitiateConversation();
+
+        //Send an inital "Hello", so it appears that the GPT is starting the conversation
+        await SendConversationItem("Hello");
+        await RequestResponse();
     }
 
     private async Task InitiateConversation()
@@ -95,6 +99,67 @@ public partial class RealtimeClient : MonoBehaviour
         {
             Debug.LogError($"Error sending audio data: {e}");
         }
+    }
+
+    private async Task SendConversationItem(string messageText)
+    {
+        try
+        {
+            var conversationItem = new
+            {
+                type = "conversation.item.create",
+                item = new
+                {
+                    type = "message",
+                    role = "user",
+                    content = new[]
+                    {
+                    new
+                    {
+                        type = "input_text",
+                        text = messageText
+                    }
+                }
+                }
+            };
+
+            string jsonString = JsonConvert.SerializeObject(conversationItem, Formatting.Indented);
+
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
+            await _webSocket.SendAsync(new ArraySegment<byte>(jsonBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error sending conversation.item.create message: {e}");
+        }
+    }
+
+    private async Task RequestResponse()
+    {
+        try
+        {
+            var request = new
+            {
+                type = "response.create",
+                // response = new
+                // {
+                //     modalities = new[] { "text", "audio" },
+                //     GPTConfig.voice,
+                //     output_audio_format = "pcm16",
+                // }
+
+            };
+
+            string jsonString = JsonConvert.SerializeObject(request, Formatting.Indented);
+
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
+            await _webSocket.SendAsync(new ArraySegment<byte>(jsonBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error requesting response: {e}");
+        }
+
     }
 
     private async Task SendAudioDataAsync(byte[] audioData)

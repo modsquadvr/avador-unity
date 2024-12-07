@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UPP.Utils;
 public partial class RealtimeClient
@@ -12,8 +13,6 @@ public partial class RealtimeClient
             { "error", HandleErrorEvent },
             { "session.created", HandleSessionCreatedEvent },
             { "session.updated", HandleSessionUpdatedEvent },
-            { "input_audio_buffer.speech_started", HandleInputAudioBufferSpeechStarted },
-            { "input_audio_buffer.speech_stopped", HandleInputAudioBufferSpeechStopped },
             { "response.created", HandleResponseCreated },
             { "response.done", HandleResponseDone },
             { "conversation.item.input_audio_transcription.completed", HandleInputTranscription },
@@ -117,17 +116,38 @@ public partial class RealtimeClient
     {
         //WHEN THE AUDIO RESPONSE IS DONE, START SENDING AUDIO AGAIN - TEMP FIX
         _enableAudioSend = true;
+
+        //response -> output -> content -> text
+        try
+        {
+            var jsonObject = JObject.Parse(jsonEvent);
+
+            var outputArray = jsonObject["response"]?["output"] as JArray;
+            if (outputArray == null)
+                throw new Exception("Output array not found in response.");
+
+            foreach (var outputItem in outputArray)
+            {
+                var contentArray = outputItem["content"] as JArray;
+                if (contentArray != null)
+                {
+                    foreach (var contentItem in contentArray)
+                    {
+                        if (contentItem["type"]?.ToString() == "audio")
+                        {
+                            string transcript = contentItem["transcript"]?.ToString();
+                            print($"<color=#44FFD2>GPT: {transcript}</color>");
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error handling response done event: {e}");
+        }
     }
 
-    private void HandleInputAudioBufferSpeechStarted(string jsonEvent)
-    {
-        print("<color=#5B5B5B>Server VAD: User speech started.</color>");
-    }
-
-    private void HandleInputAudioBufferSpeechStopped(string jsonEvent)
-    {
-        print("<color=#5B5B5B>Server VAD: User speech stopped.</color>");
-    }
 
     private void HandleInputTranscription(string jsonEvent)
     {
