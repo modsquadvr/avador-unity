@@ -2,6 +2,8 @@ public class IntroState : IState
 {
     private ContentProvider _contentProvider;
     private BubbleControllerFloating _bubbleController;
+    
+    public AvadorStates StateEnum { get; } = AvadorStates.INTRO;
 
     public IntroState(ContentProvider content_provider, BubbleControllerFloating bubble_controller)
     {

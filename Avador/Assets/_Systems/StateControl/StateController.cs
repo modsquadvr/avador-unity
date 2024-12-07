@@ -11,6 +11,8 @@ public class StateController : MonoBehaviour
     {
         _stateMachine = new StateMachine(_contentProvider, _bubbleController);
         _stateMachine.Initialize(_stateMachine.IntroState);
+
+        RealtimeClient.Instance.OnItemSelected += ItemSelected;
     }
 
     private void Update()
@@ -29,6 +31,12 @@ public class StateController : MonoBehaviour
         {
             TransitionTo(AvadorStates.INTRO);
         }
+    }
+
+    private void ItemSelected(int id)
+    {
+        _contentProvider.CurrentObjectId = id;
+        TransitionTo(AvadorStates.FOCUS);
     }
 
     public void TransitionTo(AvadorStates state)
