@@ -9,6 +9,7 @@ using System.Collections.Generic;
 
 public partial class RealtimeClient : MonoBehaviour
 {
+    [SerializeField] private GPTConfig config;
     private ClientWebSocket _webSocket;
     private Uri _uri = new Uri("wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01");
     private string _apiKey => Secret.API_KEY;
@@ -16,12 +17,36 @@ public partial class RealtimeClient : MonoBehaviour
     private Dictionary<string, Action<string>> eventHandlers;
 
     private bool isConversationInitialized;
+    private bool _enableAudioSend;
+
+    //singleton
+    public static RealtimeClient Instance;
 
     public void Awake()
-    => InitializeEventHandlers();
+    {
+        if (Instance is not null)
+            Debug.LogError("There can only be one RealtimeClient");
+        Instance = this;
+        InitializeEventHandlers();
+    }
 
-    public void OnDestroy()
-    => AudioProcessor.Instance.OnInputAudioProcessed -= HandleInputAudioProcessed;
+    public async void OnDestroy()
+    {
+        try
+        {
+            if (_webSocket != null && _webSocket.State == WebSocketState.Open)
+                await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing connection", CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error while closing WebSocket: {e}");
+        }
+        finally
+        {
+            AudioProcessor.Instance.OnInputAudioProcessed -= HandleInputAudioProcessed;
+            Instance = null;
+        }
+    }
 
     public async void Start() => await Task.Run(ConnectAsync);
 
@@ -39,6 +64,10 @@ public partial class RealtimeClient : MonoBehaviour
 
         //Configure session parameters
         await InitiateConversation();
+
+        //Send an inital "Hello", so it appears that the GPT is starting the conversation
+        await SendConversationItem("Hello");
+        await RequestResponse();
     }
 
     private async Task InitiateConversation()
@@ -51,8 +80,8 @@ public partial class RealtimeClient : MonoBehaviour
                 session = new
                 {
                     modalities = new[] { "text", "audio" },
-                    GPTConfig.instructions,
-                    GPTConfig.voice,
+                    config.instructions,
+                    voice = config.voice.ToString(),
                     input_audio_format = "pcm16",
                     output_audio_format = "pcm16",
                     input_audio_transcription = new
@@ -66,8 +95,24 @@ public partial class RealtimeClient : MonoBehaviour
                         prefix_padding_ms = 300,
                         silence_duration_ms = 500
                     },
-                    tools = new string[] { },
-                    tool_choice = "none",
+                    tools = new[] {
+                        new
+                        {
+                            type = "function",
+                            name = "identify_item",
+                            description = "Identify the current item number being discussed.",
+                            parameters = new
+                            {
+                                type = "object",
+                                properties = new Dictionary<string, object>
+                                {
+                                    {"item_id", new { type = "integer" }}
+                                },
+                                required = new[] { "item_id" }
+                            }
+                        }
+                    },
+                    tool_choice = "auto",
                     temperature = 0.8,
                     max_response_output_tokens = "inf"
                 }
@@ -83,6 +128,57 @@ public partial class RealtimeClient : MonoBehaviour
         {
             Debug.LogError($"Error sending audio data: {e}");
         }
+    }
+
+    private async Task SendConversationItem(string messageText)
+    {
+        try
+        {
+            var conversationItem = new
+            {
+                type = "conversation.item.create",
+                item = new
+                {
+                    type = "message",
+                    role = "user",
+                    content = new[]
+                    {
+                    new
+                    {
+                        type = "input_text",
+                        text = messageText
+                    }
+                }
+                }
+            };
+
+            string jsonString = JsonConvert.SerializeObject(conversationItem, Formatting.Indented);
+
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
+            await _webSocket.SendAsync(new ArraySegment<byte>(jsonBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error sending conversation.item.create message: {e}");
+        }
+    }
+
+    private async Task RequestResponse()
+    {
+        try
+        {
+            var request = new { type = "response.create" };
+
+            string jsonString = JsonConvert.SerializeObject(request, Formatting.Indented);
+
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
+            await _webSocket.SendAsync(new ArraySegment<byte>(jsonBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error requesting response: {e}");
+        }
+
     }
 
     private async Task SendAudioDataAsync(byte[] audioData)
@@ -129,7 +225,7 @@ public partial class RealtimeClient : MonoBehaviour
                 }
                 else if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    Debug.LogWarning("Websocket connection closed by server.");
+                    Debug.Log("Websocket connection closed.");
                     break;
                 }
             }
@@ -140,7 +236,7 @@ public partial class RealtimeClient : MonoBehaviour
         }
     }
 
-    // HELPERS
+    // HELPERS - - - -
     private void HandleServerEvent(string jsonEvent)
     {
         try
@@ -164,9 +260,7 @@ public partial class RealtimeClient : MonoBehaviour
     }
 
     private string EncodeAudioData(byte[] audioData)
-    {
-        return Convert.ToBase64String(audioData);
-    }
+    => Convert.ToBase64String(audioData);
 
     private byte[] DecodeAudioData(string receivedData)
     {
@@ -175,8 +269,8 @@ public partial class RealtimeClient : MonoBehaviour
     }
 
     private async void HandleInputAudioProcessed(byte[] audioData)
-        => await SendAudioDataAsync(audioData);
-
-
-
+    {
+        if (_enableAudioSend)
+            await SendAudioDataAsync(audioData);
+    }
 }
