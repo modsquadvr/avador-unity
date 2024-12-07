@@ -21,7 +21,8 @@ public partial class RealtimeClient : MonoBehaviour
     private Dictionary<string, Action<string>> eventHandlers;
 
     private bool isConversationInitialized;
-    private bool _enableAudioSend;
+
+    private string activeResponseID;
 
     //singleton
     public static RealtimeClient Instance;
@@ -212,6 +213,29 @@ public partial class RealtimeClient : MonoBehaviour
 
     }
 
+    private async Task SendConversationItemTruncate()
+    {
+        try
+        {
+            var truncateItem = new
+            {
+                type = "conversation.item.truncate",
+                item_id = activeResponseID,
+                content_index = 0,
+                AudioStreamMediator.audio_end_ms
+            };
+
+            string jsonString = JsonConvert.SerializeObject(truncateItem, Formatting.Indented);
+
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
+            await _webSocket.SendAsync(new ArraySegment<byte>(jsonBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error sending conversation.item.truncate: {e}");
+        }
+    }
+
     private async Task SendAudioDataAsync(byte[] audioData)
     {
         try
@@ -301,7 +325,6 @@ public partial class RealtimeClient : MonoBehaviour
 
     private async void HandleInputAudioProcessed(byte[] audioData)
     {
-        if (_enableAudioSend)
-            await SendAudioDataAsync(audioData);
+        await SendAudioDataAsync(audioData);
     }
 }
