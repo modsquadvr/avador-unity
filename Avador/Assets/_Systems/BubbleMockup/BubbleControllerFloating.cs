@@ -46,11 +46,9 @@ public class BubbleControllerFloating : MonoBehaviour
 
     public void SelectBubble(int bubble_id)
     {
-        Debug.Log("Selecting bubble");
         Bubble selectedBubble = _bubbles.Find(bubble => bubble.Id == bubble_id);
         if (selectedBubble == null)
         {
-            Debug.Log("Bubble not present, making it now.");
             SpawnSpecificBubble(bubble_id);
             selectedBubble = _bubbles.Find(bubble => bubble.Id == bubble_id);
         }
@@ -90,7 +88,6 @@ public class BubbleControllerFloating : MonoBehaviour
     private void TransitionToShowcase(Bubble bubble)
     {
         bubble.OnSelectionComplete -= TransitionToShowcase;
-        Debug.Log("Transition complete");
         bubble.Pop();
         _otherImagesDisplay.StartFadingSprites(_contentProvider.MuseumObjectSOs[bubble.Id].OtherImages);
     }
