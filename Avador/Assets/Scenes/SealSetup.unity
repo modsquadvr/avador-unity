@@ -119,11 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &12651636 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7665258183275767385, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
-  m_PrefabInstance: {fileID: 1509355817594583740}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &526927010
 GameObject:
   m_ObjectHideFlags: 0
@@ -1063,7 +1058,7 @@ GameObject:
   - component: {fileID: 874950722}
   - component: {fileID: 874950721}
   m_Layer: 0
-  m_Name: Square
+  m_Name: BackgroundSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2015,10 +2010,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4052826572548167394, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4052826572548167394, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
       propertyPath: 'm_Materials.Array.data[4]'
       value: 
       objectReference: {fileID: 2100000, guid: 106f3ff43a17d4967a2b64c7a92e49ec, type: 2}
@@ -2066,37 +2057,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: SealPrefab
       objectReference: {fileID: 0}
+    - target: {fileID: 7839041208982503867, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
+      propertyPath: outlineWidth
+      value: 1.56
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7665258183275767385, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1509355817594583746}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
 --- !u!137 &1509355817594583742 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 4052826572548167394, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
   m_PrefabInstance: {fileID: 1509355817594583740}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1509355817594583746
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 12651636}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 0
-  outlineColor: {r: 0, g: 0, b: 0, a: 1}
-  outlineWidth: 1.45
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
