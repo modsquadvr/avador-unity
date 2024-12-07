@@ -6,13 +6,35 @@ public class SubtitleView : MonoBehaviour
     public TMP_Text subtitleText;
 
     void Awake()
-    => RealtimeClient.Instance.OnResponseDone += UpdateText;
+    => HandleSubscriptions();
 
     void OnDestroy()
-    => RealtimeClient.Instance.OnResponseDone -= UpdateText;
+    => HandleUnsubscriptions();
 
-    public void UpdateText(string text)
+
+    private void StartSubtitle()
     {
-        subtitleText.text = text;
+        // clear when a new subtitle begins
+        subtitleText.text = "";
     }
+
+    public void UpdateSubtitle(string chunk)
+    => subtitleText.text += chunk;
+
+    // HELPERS - - -
+    private void HandleSubscriptions()
+    {
+        RealtimeClient.Instance.OnResponseCreated += StartSubtitle;
+        RealtimeClient.Instance.OnResponseAudioTranscriptDelta += UpdateSubtitle;
+    }
+
+    private void HandleUnsubscriptions()
+    {
+        if (RealtimeClient.Instance is null)
+            return;
+
+        RealtimeClient.Instance.OnResponseCreated -= StartSubtitle;
+        RealtimeClient.Instance.OnResponseAudioTranscriptDelta -= UpdateSubtitle;
+    }
+
 }

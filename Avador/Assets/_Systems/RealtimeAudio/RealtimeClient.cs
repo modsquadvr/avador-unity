@@ -21,9 +21,6 @@ public partial class RealtimeClient : MonoBehaviour
     //singleton
     public static RealtimeClient Instance;
 
-    //events
-    public Action<string> OnResponseDone;
-
     public void Awake()
     {
         if (Instance is not null)
@@ -179,9 +176,7 @@ public partial class RealtimeClient : MonoBehaviour
     }
 
     private string EncodeAudioData(byte[] audioData)
-    {
-        return Convert.ToBase64String(audioData);
-    }
+    => Convert.ToBase64String(audioData);
 
     private byte[] DecodeAudioData(string receivedData)
     {
