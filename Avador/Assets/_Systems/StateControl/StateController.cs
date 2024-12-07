@@ -5,7 +5,9 @@ public class StateController : MonoBehaviour
 {
     [SerializeField] private BubbleControllerFloating _bubbleController;
     [SerializeField] private ContentProvider _contentProvider;
+    [SerializeField] private float _timeToGoBackToResting = 120f;
     private StateMachine _stateMachine;
+    private float _timeSinceLastResponse;
 
     private void Start()
     {
@@ -13,10 +15,18 @@ public class StateController : MonoBehaviour
         _stateMachine.Initialize(_stateMachine.IntroState);
 
         RealtimeClient.Instance.OnItemSelected += ItemSelected;
+        RealtimeClient.Instance.OnResponseCreated += ResponseCreated;
     }
 
     private void Update()
     {
+        if (_stateMachine.CurrentState.StateEnum != AvadorStates.INTRO)
+        {
+            _timeSinceLastResponse += Time.deltaTime;
+            if (_timeSinceLastResponse > _timeToGoBackToResting)
+                TransitionTo(AvadorStates.INTRO);
+        }
+        
         _stateMachine.Update();
         for (int i = 0; i <= 9; i++)
         {
@@ -37,6 +47,10 @@ public class StateController : MonoBehaviour
     {
         _contentProvider.CurrentObjectId = id;
         TransitionTo(AvadorStates.FOCUS);
+    }
+    private void ResponseCreated()
+    {
+        _timeSinceLastResponse = 0f;
     }
 
     public void TransitionTo(AvadorStates state)

@@ -425,6 +425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _bubbleController: {fileID: 4749593846934974820}
   _contentProvider: {fileID: 3457051827576731541}
+  _timeToGoBackToResting: 180
 --- !u!1 &6703962358305491745
 GameObject:
   m_ObjectHideFlags: 0
