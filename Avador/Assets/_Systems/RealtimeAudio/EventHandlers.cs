@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UPP.Utils;
+
 public partial class RealtimeClient
 {
     private void InitializeEventHandlers()
@@ -18,13 +20,14 @@ public partial class RealtimeClient
             { "response.audio_transcript.delta", HandleResponseAudioTranscriptDelta },
             { "response.done", HandleResponseDone },
             { "conversation.item.input_audio_transcription.completed", HandleInputTranscription },
+            { "response.function_call_arguments.done", HandleFunctionCallArgumentsDone }
         };
     }
 
     //events exposed outside of client
     public Action OnResponseCreated;
     public Action<string> OnResponseAudioTranscriptDelta;
-
+    public Action<int> OnItemSelected;
 
     // EVENT HANDLERS
     private void HandleErrorEvent(string jsonEvent)
@@ -168,5 +171,69 @@ public partial class RealtimeClient
             Debug.LogError($"Error processing audio delta: {e.Message}");
         }
 
+    }
+
+    private void HandleFunctionCallArgumentsDone(string jsonEvent)
+    {
+        try
+        {
+            var eventObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonEvent);
+            if (eventObject == null)
+            {
+                Debug.LogWarning("Event object is null or invalid.");
+                return;
+            }
+
+            string functionName = eventObject["name"]?.ToString();
+            string argumentsJson = eventObject["arguments"]?.ToString();
+
+            if (string.IsNullOrEmpty(functionName))
+            {
+                Debug.LogWarning("Function name is missing in the event.");
+                return;
+            }
+
+            switch (functionName)
+            {
+                case "identify_item":
+                    HandleIdentifyItem(argumentsJson);
+                    break;
+
+                default:
+                    Debug.LogWarning($"Unhandled function name: {functionName}");
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error handling function call arguments done: {e}");
+        }
+    }
+
+
+    //HELPERS
+    private void HandleIdentifyItem(string argumentsJson)
+    {
+        try
+        {
+            var arguments = JsonConvert.DeserializeObject<Dictionary<string, object>>(argumentsJson);
+            if (arguments != null && arguments.ContainsKey("item_id"))
+            {
+                int itemId = Convert.ToInt32(arguments["item_id"]);
+                Debug.Log($"<color=#D8D174>Identifying item with ID: {itemId}</color>");
+
+                _ = Task.Run(RequestResponse);
+
+                MainThreadDispatcher.Instance.Enqueue(() =>
+                {
+                    OnItemSelected?.Invoke(itemId);
+                });
+            }
+            else Debug.LogWarning("Missing 'item_id' parameter in identify_item arguments.");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error handling identify_item function: {e}");
+        }
     }
 }

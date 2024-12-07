@@ -95,8 +95,24 @@ public partial class RealtimeClient : MonoBehaviour
                         prefix_padding_ms = 300,
                         silence_duration_ms = 500
                     },
-                    tools = new string[] { },
-                    tool_choice = "none",
+                    tools = new[] {
+                        new
+                        {
+                            type = "function",
+                            name = "identify_item",
+                            description = "Identify the current item number being discussed.",
+                            parameters = new
+                            {
+                                type = "object",
+                                properties = new Dictionary<string, object>
+                                {
+                                    {"item_id", new { type = "integer" }}
+                                },
+                                required = new[] { "item_id" }
+                            }
+                        }
+                    },
+                    tool_choice = "auto",
                     temperature = 0.8,
                     max_response_output_tokens = "inf"
                 }
