@@ -2009,10 +2009,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4052826572548167394, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
-      propertyPath: 'm_Materials.Array.data[4]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 106f3ff43a17d4967a2b64c7a92e49ec, type: 2}
     - target: {fileID: 5174061057584179474, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.03
@@ -2056,10 +2052,6 @@ PrefabInstance:
     - target: {fileID: 7697045807543211656, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
       propertyPath: m_Name
       value: SealPrefab
-      objectReference: {fileID: 0}
-    - target: {fileID: 7839041208982503867, guid: bf9ffd4af6fd87643a0221512b9e9944, type: 3}
-      propertyPath: outlineWidth
-      value: 1.56
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
