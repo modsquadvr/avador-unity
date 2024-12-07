@@ -12,7 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d816dd3881e2b284ca5c9d16c4e3f0f6, type: 3}
   m_Name: JohnLennonsRollsRoyce
   m_EditorClassIdentifier: 
-  Id: 0
+  Id: 4
+  ObjectName: John Lennon's Rolls Royce
+  Description: "\rDate:\r\n    painted in 1967\r\nRecord:\r\n    992.66.2\r\nArtist:\r\n   
+    Stephen Weaver\r\n\r\nThis Rolls Royce Phantom V Touring Limousine, delivered
+    in 1965 to John Lennon, has been identified as the car that took the Beatles
+    to Buckingham Palace to receive their MBEs. When Lennon ordered it, he did not
+    yet have a driver\u2019s licence.\r\n\r\nIt is the largest model made by the
+    celebrated English car-manufacturing company, and had several custom updates
+    over the next two years, including modifying the rear seat to convert to a double
+    bed. In 1967 \u2013 the year the Beatles released Sgt. Pepper\u2019s Lonely Heart\u2019s
+    Club Band \u2013 Lennon commissioned artist Stephen Weaver to create a design
+    for the unique custom paint job that replaced the original matte black finish.\r\n\r\nIn
+    1970, John Lennon and Yoko Ono had the Rolls shipped to the US, and in 1977,
+    they donated it to a New York City museum.\r\n\r\nThe car was donated to the
+    province in 1992 by BC entrepreneur and philanthropist Jim Pattison, OC, OBC.
+    He was Chairman of Expo 86, which had the theme of Transportation. He had acquired
+    the car at auction, where it briefly established the highest price ever paid
+    for an automobile.\r\n\r\nIt has been enjoyed here in Victoria, and loaned to
+    other museums around the world.\r"
   MainImage: {fileID: 2517518353933010080, guid: 6ad53feb913ca624bb28c8857379c6c9, type: 3}
   OtherImages:
   - {fileID: 6755687517620815461, guid: 420c8fec016ba8e43bb8f0730a55c602, type: 3}
