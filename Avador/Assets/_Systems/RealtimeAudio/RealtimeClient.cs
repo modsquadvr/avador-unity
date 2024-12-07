@@ -142,6 +142,18 @@ public partial class RealtimeClient : MonoBehaviour
                                 },
                                 required = new[] { "item_id" }
                             }
+                        },
+                        new 
+                        {
+                            type = "function",
+                            name = "return_to_suggestion_bubbles",
+                            description = "Identify when no item is currently being discussed and a new one must be found.",
+                            parameters = new
+                            {
+                                type = "object",
+                                properties = new Dictionary<string, object>(),
+                                required = Array.Empty<string>()
+                            }
                         }
                     },
                     tool_choice = "auto",

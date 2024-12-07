@@ -32,6 +32,7 @@ public partial class RealtimeClient
     public Action<string> OnResponseAudioTranscriptDelta;
     public Action<int> OnItemSelected;
     public Action OnSpeechStarted;
+    public Action OnReturnToBubbles;
 
     // EVENT HANDLERS
     private void HandleErrorEvent(string jsonEvent)
@@ -206,6 +207,9 @@ public partial class RealtimeClient
                 case "identify_item":
                     HandleIdentifyItem(argumentsJson);
                     break;
+                case "return_to_suggestion_bubbles":
+                    HandleReturnToSuggestionBubbles();
+                    break;
 
                 default:
                     Debug.LogWarning($"Unhandled function name: {functionName}");
@@ -242,6 +246,22 @@ public partial class RealtimeClient
         catch (Exception e)
         {
             Debug.LogError($"Error handling identify_item function: {e}");
+        }
+    }
+    
+    private void HandleReturnToSuggestionBubbles()
+    {
+        try
+        {
+            _ = Task.Run(RequestResponse);
+            MainThreadDispatcher.Instance.Enqueue(() =>
+            {
+                OnReturnToBubbles?.Invoke();
+            });
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error handling return_to_suggestion_bubbles function: {e}");
         }
     }
 

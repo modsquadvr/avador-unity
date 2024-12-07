@@ -24,11 +24,11 @@ public class StateMachine
     public IState FocusState;
     public IState SuggestionState;
 
-    public AvadorStates PreviousStateEnum;
+    public AvadorStates PreviousStateEnum = AvadorStates.INTRO;
 
     public StateMachine(ContentProvider _content_provider, BubbleControllerFloating _bubble_controller)
     {
-        this.IntroState = new IntroState(_content_provider, _bubble_controller);
+        this.IntroState = new IntroState(_content_provider, _bubble_controller, this);
         this.FocusState = new FocusState(_content_provider, _bubble_controller, this);
         this.SuggestionState = new SuggestionState(_content_provider);
     }

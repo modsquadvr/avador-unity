@@ -16,6 +16,14 @@ public class StateController : MonoBehaviour
 
         RealtimeClient.Instance.OnItemSelected += ItemSelected;
         RealtimeClient.Instance.OnResponseCreated += ResponseCreated;
+        RealtimeClient.Instance.OnReturnToBubbles += ReturnToIntroState;
+    }
+
+    private void OnDestroy()
+    {
+        RealtimeClient.Instance.OnItemSelected -= ItemSelected;
+        RealtimeClient.Instance.OnResponseCreated -= ResponseCreated;
+        RealtimeClient.Instance.OnReturnToBubbles -= ReturnToIntroState;
     }
 
     private void Update()
@@ -32,15 +40,19 @@ public class StateController : MonoBehaviour
         {
             if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha0 + i)))
             {
-                _contentProvider.CurrentObjectId = i;
-                TransitionTo(AvadorStates.FOCUS);
+                ItemSelected(i);
             }
         }
 
         if (Input.GetKeyDown(KeyCode.End))
         {
-            TransitionTo(AvadorStates.INTRO);
+            ReturnToIntroState();
         }
+    }
+
+    private void ReturnToIntroState()
+    {
+        TransitionTo(AvadorStates.INTRO);
     }
 
     private void ItemSelected(int id)
