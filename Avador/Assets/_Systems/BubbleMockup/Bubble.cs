@@ -163,6 +163,8 @@ public class Bubble : MonoBehaviour
 
 	public void Pop()
 	{
+		GetComponentInChildren<SpriteMask>().enabled = false;
+		MuseumObjectSpriteRenderer.SpriteRenderer.maskInteraction = SpriteMaskInteraction.None;
 		BubbleSpriteRenderer.enabled = false;
 		BubblePop.Play();
 		IdText.enabled = false;

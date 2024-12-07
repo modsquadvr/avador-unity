@@ -64,7 +64,6 @@ public class BubbleControllerFloating : MonoBehaviour
         }
     }
 
-    private bool skippedFirstSwimDown;
     public void EnterBubbleProducingState()
     {
         _otherImagesDisplay.StopFadingSprites();
@@ -73,12 +72,7 @@ public class BubbleControllerFloating : MonoBehaviour
         {
             RemoveBubble(bubble);
         }
-        if (!skippedFirstSwimDown)
-        {
-            skippedFirstSwimDown = true;
-            return;
-        }
-        _sealAnimationRunner.PlaySwimDown();
+        
         _timer = 0;
         _burstCount = 0;
     }
