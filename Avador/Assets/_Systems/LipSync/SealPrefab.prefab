@@ -216,6 +216,6 @@ MonoBehaviour:
   outlineMode: 0
   outlineColor: {r: 0, g: 0, b: 0, a: 1}
   outlineWidth: 1.56
-  precomputeOutline: 1
+  precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
