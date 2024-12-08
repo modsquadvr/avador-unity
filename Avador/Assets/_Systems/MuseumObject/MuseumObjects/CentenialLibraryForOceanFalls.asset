@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d816dd3881e2b284ca5c9d16c4e3f0f6, type: 3}
+  m_Name: CentenialLibraryForOceanFalls
+  m_EditorClassIdentifier: 
+  Id: 0
+  ObjectName: Centenial Library for Ocean Falls
+  Description: "\rDate:\r\n    1958\r\nRecord:\r\n    J-00876 (GR-3280)\r\n\r\nThis
+    1958 photograph shows the people of Ocean Falls joining in the province\u2019s
+    celebrations by coming together to launch a new community library, turning the
+    first sod on June 5th. It was a centennial project, marking 100 years since the
+    founding of the mainland Colony of British Columbia.\r\n\r\nRemote places like
+    Ocean Falls are a part of a community family that links to the provincial family
+    through records like this one. As men, women and children came together to take
+    the first steps toward their new library, the Ocean Falls community showed their
+    involvement in the province\u2019s celebrations. Since libraries are egalitarian,
+    family-oriented spaces in communities, I think this photograph represents one
+    of the positive aspects of the wider \u201Cfamily\u201D.\r\n\r\nSeries GR-3280
+    consists of records acquired by the British Columbia Centennial Committee showcasing
+    projects, celebrations and participants from the province\u2019s 1958, 1966-67
+    and 1971 centennials. The committee received more than 7,000 photographs from
+    around the province. Photographs in this Ocean Falls file were sent to the centennial
+    committee by Mr. D. Heibert of Ocean Falls.\r"
+  MainImage: {fileID: -855298285791758126, guid: c69b1fef77010bd409c7003322e8fbe5, type: 3}
+  OtherImages:
+  - {fileID: 6937817954938267909, guid: 14f850d5e1ae8144aae56774013d69ac, type: 3}
