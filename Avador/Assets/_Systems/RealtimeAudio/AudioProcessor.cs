@@ -1,4 +1,5 @@
 using System;
+using System.Drawing.Printing;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -17,7 +18,7 @@ public class AudioProcessor
     }
 
     public event Action<byte[]> OnInputAudioProcessed;
-    public event Action<float[]> OnOutputAudioProcessed;
+    public event Action<(bool, float[])> OnOutputAudioProcessed;
 
     public void ProcessAudioIn(float[] rawAudio)
     {
@@ -25,16 +26,21 @@ public class AudioProcessor
         {
             byte[] processedAudio = ResampleInput(rawAudio);
             OnInputAudioProcessed?.Invoke(processedAudio);
-            // Debug.Log($"processed audio: [{rawAudio.Length}->{processedAudio.Length}]");
         });
     }
 
-    public void ProcessAudioOut(byte[] rawAudio)
+    public void ProcessAudioOut(bool isResponseDone, byte[] rawAudio)
     {
         Task.Run(() =>
         {
+            if (isResponseDone)
+            {
+                OnOutputAudioProcessed?.Invoke((isResponseDone, new float[] { 0.0f }));
+                return;
+            }
+
             float[] processedAudio = ResampleOutput(rawAudio);
-            OnOutputAudioProcessed?.Invoke(processedAudio);
+            OnOutputAudioProcessed?.Invoke((isResponseDone, processedAudio));
         });
     }
 

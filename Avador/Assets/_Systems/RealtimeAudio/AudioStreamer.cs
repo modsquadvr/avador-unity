@@ -8,25 +8,25 @@ public class AudioStreamer : MonoBehaviour
     public AudioSource audioSource;
     private AudioClip audioClip;
 
-    private ConcurrentQueue<float> audioQueue = new ConcurrentQueue<float>();
+    private ConcurrentQueue<(bool, float)> audioQueue = new ConcurrentQueue<(bool, float)>();
 
     private bool _isIncrementingAudioEndMs;
 
-    void Awake()
+    private void Awake()
     {
+        AudioStreamMediator.Instance.OnResponseCreated += StartResponse;
+        AudioStreamMediator.Instance.OnAudioInterrupted += InterruptAudio;
         AudioProcessor.Instance.OnOutputAudioProcessed += AddAudioData;
-        AudioStreamMediator.OnAudioInterrupted += InterruptAudio;
-        RealtimeClient.Instance.OnResponseCreated += StartResponse;
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
+        AudioStreamMediator.Instance.OnResponseCreated -= StartResponse;
+        AudioStreamMediator.Instance.OnAudioInterrupted -= InterruptAudio;
         AudioProcessor.Instance.OnOutputAudioProcessed -= AddAudioData;
-        AudioStreamMediator.OnAudioInterrupted -= InterruptAudio;
-        RealtimeClient.Instance.OnResponseCreated -= StartResponse;
     }
 
-    void Start()
+    private void Start()
     {
         audioClip = AudioClip.Create("RealtimeAudio", 24000 * 10, 1, 24000, true, OnAudioRead);
         audioSource.clip = audioClip;
@@ -34,46 +34,49 @@ public class AudioStreamer : MonoBehaviour
         audioSource.Play();
     }
 
-    void OnAudioRead(float[] data)
+    private void OnAudioRead(float[] data)
     {
         // Fill the audio buffer
         for (int i = 0; i < data.Length; i++)
             data[i] = GetNextSample();
     }
 
-    public void AddAudioData(float[] newAudioData)
+    private void AddAudioData((bool isResponseDone, float[] newAudioData) data)
     {
-        foreach (var sample in newAudioData)
-            audioQueue.Enqueue(sample);
+        for (int i = 0; i < data.newAudioData.Length; i++)
+            audioQueue.Enqueue((data.isResponseDone, data.newAudioData[i]));
     }
 
-    public void StartResponse()
+    private void StartResponse()
     {
         if (!_isIncrementingAudioEndMs)
         {
-            AudioStreamMediator.audio_end_ms = 0; // Reset only if not already incrementing
+            if (AudioStreamMediator.Instance.audio_end_ms != 0)
+                Debug.LogError("Starting a new response but the audio_end_ms is not reset");
+
             _ = Task.Run(IncrementAudioEnd);
         }
     }
 
-
-    public void InterruptAudio()
+    private void InterruptAudio()
     {
         if (_isIncrementingAudioEndMs)
         {
-            _isIncrementingAudioEndMs = false;
+            EndAudioSection();
             audioQueue.Clear();
-            AudioStreamMediator.isAudioPlaying = false;
         }
     }
 
     //HELPERS
     private float GetNextSample()
     {
-        if (audioQueue.TryDequeue(out float sample))
+        if (audioQueue.TryDequeue(out (bool isResponseDone, float chunk) sample))
         {
-            AudioStreamMediator.isAudioPlaying = true;
-            return sample;
+            AudioStreamMediator.Instance.isAudioPlaying = true;
+            if (sample.isResponseDone)
+                EndAudioSection();
+
+            return sample.chunk;
         }
 
         return 0.0f;
@@ -93,15 +96,23 @@ public class AudioStreamer : MonoBehaviour
         {
             while (_isIncrementingAudioEndMs)
             {
-                AudioStreamMediator.audio_end_ms += 50;
+                AudioStreamMediator.Instance.audio_end_ms += 50;
                 await Task.Delay(50);
             }
+
         }
         catch (Exception ex)
         {
             Debug.LogError($"Error in IncrementAudioEnd: {ex.Message}");
         }
 
+    }
+
+    private void EndAudioSection()
+    {
+        _isIncrementingAudioEndMs = false;
+        AudioStreamMediator.Instance.audio_end_ms = 0;
+        AudioStreamMediator.Instance.isAudioPlaying = false;
     }
 
 }

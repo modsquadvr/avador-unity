@@ -17,6 +17,7 @@ public partial class RealtimeClient
             { "session.updated", HandleSessionUpdatedEvent },
             { "response.created", HandleResponseCreated },
             { "response.audio.delta", HandleResponseAudioDelta },
+            { "response.audio.done", HandleResponseAudioDone },
             { "response.audio_transcript.delta", HandleResponseAudioTranscriptDelta },
             { "response.done", HandleResponseDone },
             { "conversation.item.input_audio_transcription.completed", HandleInputTranscription },
@@ -59,7 +60,7 @@ public partial class RealtimeClient
         MainThreadDispatcher.Instance.Enqueue(() =>
         {
             OnResponseCreated?.Invoke();
-            AudioStreamMediator.TriggerResponseCreated();
+            AudioStreamMediator.Instance.TriggerResponseCreated();
         });
     }
 
@@ -79,7 +80,7 @@ public partial class RealtimeClient
                 if (!string.IsNullOrEmpty(base64AudioDelta))
                 {
                     byte[] decodedData = DecodeAudioData(base64AudioDelta);
-                    AudioProcessor.Instance.ProcessAudioOut(decodedData);
+                    AudioProcessor.Instance.ProcessAudioOut(false, decodedData);
                 }
                 else Debug.LogWarning("Delta property is empty or null.");
 
@@ -98,6 +99,12 @@ public partial class RealtimeClient
         {
             Debug.LogError($"Error processing audio delta: {e.Message}");
         }
+    }
+
+    private void HandleResponseAudioDone(string jsonEvent)
+    {
+        // if the audio response is done, then Enqueue isResponseDone flag = true to the audio queue
+        AudioProcessor.Instance.ProcessAudioOut(true, null);
     }
 
     private void HandleResponseAudioTranscriptDelta(string jsonEvent)
@@ -170,7 +177,7 @@ public partial class RealtimeClient
                 if (!string.IsNullOrEmpty(transcript))
                     print($"<color=#87F6FF>User: {transcript}</color>");
 
-                else Debug.LogWarning("Input transcript property is empty or null.");
+                else Debug.LogWarning("Input transcript property is empty or null. (transcriber likely didnt catch what you said)");
             }
             else Debug.LogWarning($"Response is missing 'transcript' property: {jsonEvent}");
         }
@@ -247,18 +254,14 @@ public partial class RealtimeClient
 
     private void HandleInputAudioBufferSpeechStarted(string jsonEvent)
     {
-
-        if (AudioStreamMediator.isAudioPlaying)
+        //if gpt was interrupted
+        if (AudioStreamMediator.Instance.isAudioPlaying)
         {
-            MainThreadDispatcher.Instance.Enqueue(() =>
-            {
-                AudioStreamMediator.TriggerAudioInterrupted();
-            });
-
+            MainThreadDispatcher.Instance.Enqueue(AudioStreamMediator.Instance.TriggerAudioInterrupted);
             _ = Task.Run(SendConversationItemTruncate);
         }
-
     }
+
 
     private void HandleInputAudioBufferSpeechStopped(string jsonEvent) { }
 

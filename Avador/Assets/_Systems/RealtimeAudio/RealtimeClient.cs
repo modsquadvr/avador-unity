@@ -191,7 +191,7 @@ public partial class RealtimeClient : MonoBehaviour
                 type = "conversation.item.truncate",
                 item_id = activeResponseID,
                 content_index = 0,
-                AudioStreamMediator.audio_end_ms
+                AudioStreamMediator.Instance.audio_end_ms
             };
 
             string jsonString = JsonConvert.SerializeObject(truncateItem, Formatting.Indented);

@@ -1,15 +1,27 @@
 
 using System;
 
-public static class AudioStreamMediator
+public class AudioStreamMediator
 {
-    public static event Action OnResponseCreated;
-    public static event Action OnAudioInterrupted;
+    //singletone
+    private static AudioStreamMediator _instance;
+    public static AudioStreamMediator Instance
+    {
+        get
+        {
+            if (_instance is null)
+                _instance = new();
+            return _instance;
+        }
+    }
 
-    public static int audio_end_ms;
+    public event Action OnResponseCreated;
+    public event Action OnAudioInterrupted;
 
-    private static bool _isAudioPlaying;
-    public static bool isAudioPlaying
+    public int audio_end_ms;
+
+    private bool _isAudioPlaying;
+    public bool isAudioPlaying
     {
         get => _isAudioPlaying;
         set
@@ -19,10 +31,10 @@ public static class AudioStreamMediator
         }
     }
 
-    public static void TriggerResponseCreated()
+    public void TriggerResponseCreated()
     => OnResponseCreated?.Invoke();
 
-    public static void TriggerAudioInterrupted()
+    public void TriggerAudioInterrupted()
     => OnAudioInterrupted?.Invoke();
 
 }
