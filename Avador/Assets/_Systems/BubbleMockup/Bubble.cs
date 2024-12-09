@@ -104,6 +104,7 @@ public class Bubble : MonoBehaviour
 	{
 		//Disable regular update/switch states
 		_state = State.SELECTION;
+		GetComponent<Collider2D>().enabled = false;
 		transform.localScale = _initialScale;
 
 		float time = 0;
@@ -125,6 +126,7 @@ public class Bubble : MonoBehaviour
 	{
 		//Disable regular update/switch states
 		_state = State.SELECTION;
+		GetComponent<Collider2D>().enabled = false;
 		//Get the direction to the center, and move in the opposite of that direction
 		Vector3 directionToCenter = (Camera.main.ScreenToWorldPoint(new Vector3(Screen.width/2f,Screen.height/2f,0)) - transform.position);
 		directionToCenter.z = 0;
