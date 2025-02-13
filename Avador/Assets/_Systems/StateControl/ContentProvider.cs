@@ -7,6 +7,7 @@ public class ContentProvider : MonoBehaviour
 	[HideInInspector] public int CurrentObjectId = -1;
 	public int MaximumId => MuseumObjectSOs.Count - 1;
 
+
 	public void Start()
 	{
 		for (int i = 0; i < MuseumObjectSOs.Count; i++)

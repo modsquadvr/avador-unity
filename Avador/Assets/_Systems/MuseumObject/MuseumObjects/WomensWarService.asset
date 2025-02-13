@@ -12,7 +12,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d816dd3881e2b284ca5c9d16c4e3f0f6, type: 3}
   m_Name: WomensWarService
   m_EditorClassIdentifier: 
-  Id: 0
+  Id: 5
+  ObjectName: Women's War Service
+  Description: "\rDate:\r\n    2009.08.12\r\nRecord:\r\n    2009.126.2\r\nMaterials:\r\n   
+    Doll in Canadian Women\u2019s Army Corps service dress\r\n\r\nDuring the war,
+    while many women served on the home front, others went to war. The first women\u2019s
+    unit raised was the Canadian Women\u2019s Army Corps (CWAC), founded in Victoria
+    in 1941 by Mrs. Joan Kennedy. Although they were first dismissed as a \u201Cpetticoat
+    army\u201D by a patronizing male, they became regular army in 1942. The CWAC
+    uniforms included buttons featuring the image of Athena, Goddess of War. One
+    who wore that uniform was Mary Greyeyes Reid, the first indigenous woman to join
+    the CWAC. After the war she moved to Victoria and worked in a local restaurant
+    until she retired. After her death in 2011 she was buried at Muskeg Lake Cree
+    Nation, Saskatchewan. More than 22,000 women served in the CWAC.\r\n\r\nDenied
+    combat roles, CWAC women provided clerical, transport and wireless support, including
+    deployment overseas in England, Italy and Northern Germany. Some did secret decoding
+    and cipher work. Initially disbanded in August 1946, they were reinstituted and
+    continued to serve until 1964.\r\n\r\nThe 17,038 women of the Royal Canadian
+    Air Force Women\u2019s Division (WD) did essential work, releasing men for overseas
+    service and playing a crucial role at the training air bases of the British Commonwealth
+    Air Training Program in Canada, where they prepared Allied air crews for combat.
+    Their work expanded quickly to include over 22 trades, mechanical, electrical,
+    radio, and parachute packing. Others served with RCAF Overseas Headquarters in
+    London, sharing the risk of enemy bombing.\r\n\r\nThe last women\u2019s unit
+    founded were the 6,000 women of the Women\u2019s Royal Canadian Naval Service
+    (WRCNS), nicknamed \u201CWrens\u201D, who were excluded from warships until 1945.
+    But naval land bases being technically \u201Cstone frigates,\u201D means the
+    base commander at HMCS Bytown II, Captain Isabel Mcneill, became the first woman
+    to command a RCN \u201Cship.\u201D Only paid 2/3 a male wage, the Wrens handled
+    a wide range of clerical and transport work but also did LORAN, signals and cipher
+    work. One hundred WRCNS participated in headquarters command and control work
+    during D-Day.\r\n\r\nAs in the previous war, women also served overseas in the
+    Royal Canadian Army Medical Corps (RCAMC) Nursing Sisters, holding a junior officer
+    rank to give them authority over patients. They also shared the risks of bombing
+    and shelling. Canadian women also worked for the Canadian Red Cross Service,
+    providing comforts for wounded personnel, victims of war and prisoners of war.\r\n\r\nAfter
+    VE Day and demobilization, women war veterans joined the multi-service Canadian
+    Legion, which has its own uniform. The service dress dolls pictured here are
+    a gift of the Ex-Service Women\u2019s Royal Canadian Legion Branch 182. The Branch
+    was founded in 1945 and disbanded in 2008. The dolls were displayed at public
+    events and monthly meetings as a remembrance of past war service. The CWAC uniform
+    was made by Dorothy Creasy (Ferguson) from an old uniform and shirttail. The
+    WD doll service uniform was crafted by Ione Canning (Ellis) with the hat badge,
+    buttons and belt buckle insignia by Delphine Large (Cameron). The WRCNS uniform
+    was made by Ethel Jaggard. The RCMC nursing sister was made by Sergeant Dorothy
+    Creasy.\r\n"
   MainImage: {fileID: 4618003492624559900, guid: 5455eda303ba64746b2e739fdbaaebb5, type: 3}
   OtherImages:
   - {fileID: 5189181636370945977, guid: a7241c79cc0961e43a0cc585ed90b64e, type: 3}

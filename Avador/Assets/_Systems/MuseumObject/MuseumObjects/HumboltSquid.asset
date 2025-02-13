@@ -12,6 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d816dd3881e2b284ca5c9d16c4e3f0f6, type: 3}
   m_Name: HumboltSquid
   m_EditorClassIdentifier: 
-  Id: 0
+  Id: 3
+  ObjectName: Humboldt Squid
+  Description: "\rDate:\r\n    collected in 2004\r\nRecord:\r\n    004-00050-001\r\nScientific
+    Name:\r\n    Dosidicus gigas\r\nCommon Name:\r\n    Jumbo squid, Humboldt squid,
+    Diablo Rojo\r\n\r\nTypically, these large squid (also commonly known as Jumbo
+    Squid, or Diablo Rojo in Spanish) are distributed farther south in deep offshore
+    waters ranging from Chile to Mexico. However within the last decade, Humboldt
+    Squid, Dosidicus gigas have appeared sporadically off the coast of British Columbia.
+    While several hypotheses have been proposed to explain this shift, including
+    changes in ocean temperature and overfishing of would-be-competitors, the ultimate
+    factors driving these northward invasions remain unclear.\r\n\r\nHumboldt Squid
+    are aggressive predators, feeding on other invertebrates and fishes, and at times,
+    even cannibalistic on each other. They often flash bright red when hunting (hence
+    the Spanish name, which translates into \u2018Red Devil\u2019). Typically they
+    move up and down the water column following their prey. However on occasion,
+    large numbers move into shallow waters, perhaps in pursuit of herring or sardines,
+    and become stranded inadvertently as the tide recedes (as was documented on Tofino
+    beaches in 2009).\r\n\r\nThis individual was one of the first specimens collected
+    in 2004 off the West Coast of Vancouver Island.\r"
   MainImage: {fileID: 4244229188406389275, guid: 1b9a722126f346448ad0d5c21b9767aa, type: 3}
   OtherImages: []

@@ -11,7 +11,7 @@ public class BubbleControllerFloating : MonoBehaviour
     [SerializeField] private int _burstAmount;
     [SerializeField] private int _burstDelay;
 
-    [SerializeField] private SealAnimationRunner _sealAnimationRunner;
+    [SerializeField] public SealAnimationRunner _sealAnimationRunner;
     [SerializeField] private SpriteFader _otherImagesDisplay;
 
     [SerializeField] private Transform _bubbleDestinationOnSelect;
@@ -46,16 +46,12 @@ public class BubbleControllerFloating : MonoBehaviour
 
     public void SelectBubble(int bubble_id)
     {
-        Debug.Log("Selecting bubble");
         Bubble selectedBubble = _bubbles.Find(bubble => bubble.Id == bubble_id);
         if (selectedBubble == null)
         {
-            Debug.Log("Bubble not present, making it now.");
             SpawnSpecificBubble(bubble_id);
             selectedBubble = _bubbles.Find(bubble => bubble.Id == bubble_id);
         }
-        
-        _sealAnimationRunner.PlaySwimUp();
         
         foreach (Bubble bubble in _bubbles)
         {
@@ -68,7 +64,6 @@ public class BubbleControllerFloating : MonoBehaviour
         }
     }
 
-    private bool skippedFirstSwimDown;
     public void EnterBubbleProducingState()
     {
         _otherImagesDisplay.StopFadingSprites();
@@ -77,12 +72,7 @@ public class BubbleControllerFloating : MonoBehaviour
         {
             RemoveBubble(bubble);
         }
-        if (!skippedFirstSwimDown)
-        {
-            skippedFirstSwimDown = true;
-            return;
-        }
-        _sealAnimationRunner.PlaySwimDown();
+        
         _timer = 0;
         _burstCount = 0;
     }
@@ -90,7 +80,6 @@ public class BubbleControllerFloating : MonoBehaviour
     private void TransitionToShowcase(Bubble bubble)
     {
         bubble.OnSelectionComplete -= TransitionToShowcase;
-        Debug.Log("Transition complete");
         bubble.Pop();
         _otherImagesDisplay.StartFadingSprites(_contentProvider.MuseumObjectSOs[bubble.Id].OtherImages);
     }

@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      BackgroundNoBubblesDarkish_0: 3192939522352798552
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

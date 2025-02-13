@@ -6,22 +6,54 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine.PlayerLoop;
 
 public partial class RealtimeClient : MonoBehaviour
 {
+    [SerializeField] private GPTConfig config;
+    [SerializeField] private ContentProvider _contentProvider;
     private ClientWebSocket _webSocket;
     private Uri _uri = new Uri("wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01");
     private string _apiKey => Secret.API_KEY;
+    private string _initialConfigInstruction;
 
     private Dictionary<string, Action<string>> eventHandlers;
 
     private bool isConversationInitialized;
 
-    public void Awake()
-    => InitializeEventHandlers();
+    private string activeResponseID;
 
-    public void OnDestroy()
-    => AudioProcessor.Instance.OnInputAudioProcessed -= HandleInputAudioProcessed;
+    //singleton
+    public static RealtimeClient Instance;
+
+    public void Awake()
+    {
+        if (Instance is not null)
+            Debug.LogError("There can only be one RealtimeClient");
+        Instance = this;
+        InitializeEventHandlers();
+    }
+
+    public async void OnDestroy()
+    {
+        config.instructions = _initialConfigInstruction;
+        
+        try
+        {
+            if (_webSocket != null && _webSocket.State == WebSocketState.Open)
+                await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing connection", CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error while closing WebSocket: {e}");
+        }
+        finally
+        {
+            AudioProcessor.Instance.OnInputAudioProcessed -= HandleInputAudioProcessed;
+            Instance = null;
+        }
+    }
 
     public async void Start() => await Task.Run(ConnectAsync);
 
@@ -36,9 +68,38 @@ public partial class RealtimeClient : MonoBehaviour
 
         //Start message receive loop
         _ = Task.Run(ReceiveMessagesAsync);
+        
+        //Add included objects from the ContentProvider to the config instructions
+        if (_contentProvider != null)
+            AddMuseumObjectsToConfig();
 
         //Configure session parameters
         await InitiateConversation();
+
+        //Send an inital "Hello", so it appears that the GPT is starting the conversation
+        await SendConversationItem("Hello");
+        await RequestResponse();
+    }
+
+    private void AddMuseumObjectsToConfig()
+    {
+        // Initialize a StringBuilder with the existing instructions.
+        StringBuilder builder = new StringBuilder(config.instructions);
+    
+        // Append a header and the museum objects.
+        builder.AppendLine();
+        builder.AppendLine("Objects with format ID: Name: (\nDescription\n)");
+    
+        foreach (MuseumObjectSO museumObject in _contentProvider.MuseumObjectSOs)
+        {
+            builder.AppendLine($"{museumObject.Id}: {museumObject.ObjectName}:(\n{museumObject.Description}\n)");
+        }
+    
+        // Update the config instructions with the built string.
+        _initialConfigInstruction = config.instructions;
+        config.instructions = builder.ToString();
+    
+        Debug.Log($"New config instructions: \n{config.instructions}");
     }
 
     private async Task InitiateConversation()
@@ -51,8 +112,8 @@ public partial class RealtimeClient : MonoBehaviour
                 session = new
                 {
                     modalities = new[] { "text", "audio" },
-                    GPTConfig.instructions,
-                    GPTConfig.voice,
+                    config.instructions,
+                    voice = config.voice.ToString(),
                     input_audio_format = "pcm16",
                     output_audio_format = "pcm16",
                     input_audio_transcription = new
@@ -66,8 +127,36 @@ public partial class RealtimeClient : MonoBehaviour
                         prefix_padding_ms = 300,
                         silence_duration_ms = 500
                     },
-                    tools = new string[] { },
-                    tool_choice = "none",
+                    tools = new[] {
+                        new
+                        {
+                            type = "function",
+                            name = "identify_item",
+                            description = "Identify the current item number being discussed.",
+                            parameters = new
+                            {
+                                type = "object",
+                                properties = new Dictionary<string, object>
+                                {
+                                    {"item_id", new { type = "integer" }}
+                                },
+                                required = new[] { "item_id" }
+                            }
+                        },
+                        new 
+                        {
+                            type = "function",
+                            name = "return_to_suggestion_bubbles",
+                            description = "Identify when no item is currently being discussed and a new one must be found.",
+                            parameters = new
+                            {
+                                type = "object",
+                                properties = new Dictionary<string, object>(),
+                                required = Array.Empty<string>()
+                            }
+                        }
+                    },
+                    tool_choice = "auto",
                     temperature = 0.8,
                     max_response_output_tokens = "inf"
                 }
@@ -82,6 +171,80 @@ public partial class RealtimeClient : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"Error sending audio data: {e}");
+        }
+    }
+
+    private async Task SendConversationItem(string messageText)
+    {
+        try
+        {
+            var conversationItem = new
+            {
+                type = "conversation.item.create",
+                item = new
+                {
+                    type = "message",
+                    role = "user",
+                    content = new[]
+                    {
+                    new
+                    {
+                        type = "input_text",
+                        text = messageText
+                    }
+                }
+                }
+            };
+
+            string jsonString = JsonConvert.SerializeObject(conversationItem, Formatting.Indented);
+
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
+            await _webSocket.SendAsync(new ArraySegment<byte>(jsonBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error sending conversation.item.create message: {e}");
+        }
+    }
+
+    private async Task RequestResponse()
+    {
+        try
+        {
+            var request = new { type = "response.create" };
+
+            string jsonString = JsonConvert.SerializeObject(request, Formatting.Indented);
+
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
+            await _webSocket.SendAsync(new ArraySegment<byte>(jsonBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error requesting response: {e}");
+        }
+
+    }
+
+    private async Task SendConversationItemTruncate()
+    {
+        try
+        {
+            var truncateItem = new
+            {
+                type = "conversation.item.truncate",
+                item_id = activeResponseID,
+                content_index = 0,
+                AudioStreamMediator.Instance.audio_end_ms
+            };
+
+            string jsonString = JsonConvert.SerializeObject(truncateItem, Formatting.Indented);
+
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
+            await _webSocket.SendAsync(new ArraySegment<byte>(jsonBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error sending conversation.item.truncate: {e}");
         }
     }
 
@@ -129,7 +292,7 @@ public partial class RealtimeClient : MonoBehaviour
                 }
                 else if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    Debug.LogWarning("Websocket connection closed by server.");
+                    Debug.Log("Websocket connection closed.");
                     break;
                 }
             }
@@ -140,7 +303,7 @@ public partial class RealtimeClient : MonoBehaviour
         }
     }
 
-    // HELPERS
+    // HELPERS - - - -
     private void HandleServerEvent(string jsonEvent)
     {
         try
@@ -164,9 +327,7 @@ public partial class RealtimeClient : MonoBehaviour
     }
 
     private string EncodeAudioData(byte[] audioData)
-    {
-        return Convert.ToBase64String(audioData);
-    }
+    => Convert.ToBase64String(audioData);
 
     private byte[] DecodeAudioData(string receivedData)
     {
@@ -175,8 +336,7 @@ public partial class RealtimeClient : MonoBehaviour
     }
 
     private async void HandleInputAudioProcessed(byte[] audioData)
-        => await SendAudioDataAsync(audioData);
-
-
-
+    {
+        await SendAudioDataAsync(audioData);
+    }
 }
